@@ -1,0 +1,39 @@
+/* Custom styles for Redis Source Code Book */
+
+/* Code blocks */
+pre code {
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* Blockquotes */
+blockquote {
+    border-left: 4px solid #e0e0e0;
+    padding-left: 1em;
+    margin-left: 0;
+    color: #666;
+}
+
+/* ASCII diagrams */
+pre code.language-text {
+    font-family: monospace;
+    white-space: pre;
+}
