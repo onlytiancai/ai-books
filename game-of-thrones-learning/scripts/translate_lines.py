@@ -181,11 +181,12 @@ def process_line(line: str, line_idx: int) -> dict:
         }
 
 
-def process_batch(batch_items: List[tuple]) -> List[dict]:
+def process_batch(batch_items: List[tuple], max_retries: int = 3) -> List[dict]:
     """Process a batch of lines in one API call.
 
     Args:
         batch_items: List of (line_idx, line_content) tuples
+        max_retries: Maximum number of retry attempts for invalid JSON
 
     Returns:
         List of result dictionaries with id, original, translation, vocabulary, notes
@@ -196,40 +197,61 @@ def process_batch(batch_items: List[tuple]) -> List[dict]:
     # Build numbered lines text
     lines_text = "\n".join(f"[{i+1}] {content}" for i, (idx, content) in enumerate(batch_items))
 
-    try:
-        # Call LLM with batch prompt
-        template = load_prompt("batch_translate")
-        prompt = fill_prompt(template, lines=lines_text)
-        response = call_llm(prompt, max_tokens=8192)
+    # Call LLM with batch prompt
+    template = load_prompt("batch_translate")
+    prompt = fill_prompt(template, lines=lines_text)
 
-        # Parse JSON response
-        results = parse_json_response(response)
+    for attempt in range(max_retries):
+        try:
+            response = call_llm(prompt, max_tokens=8192)
 
-        if not isinstance(results, list):
-            raise ValueError(f"Expected JSON array, got {type(results)}")
+            # Parse JSON response
+            results = parse_json_response(response)
 
-        # Build a lookup by id
-        results_by_id = {r.get("id"): r for r in results if isinstance(r, dict)}
+            if not isinstance(results, list):
+                raise ValueError(f"Expected JSON array, got {type(results)}")
 
-        # Merge with original line info
-        output = []
-        for i, (line_idx, line_content) in enumerate(batch_items):
-            result = results_by_id.get(i + 1, {})
-            output.append({
-                "id": line_idx + 1,
-                "original": line_content,
-                "translation": result.get("translation", "[Missing translation]"),
-                "vocabulary": result.get("vocabulary", []),
-                "notes": result.get("notes", "")
-            })
+            # Validate each result has required fields
+            for r in results:
+                if not isinstance(r, dict):
+                    raise ValueError(f"Expected dict, got {type(r)}")
+                if "id" not in r:
+                    raise ValueError("Missing required field: id")
+                if "translation" not in r:
+                    raise ValueError("Missing required field: translation")
+                if "vocabulary" not in r:
+                    r["vocabulary"] = []
+                if "notes" not in r:
+                    r["notes"] = ""
 
-        return output
+            # Build a lookup by id
+            results_by_id = {r.get("id"): r for r in results if isinstance(r, dict)}
 
-    except Exception as e:
-        print(f"    Batch processing failed: {e}")
-        print(f"    Falling back to single-line processing...")
-        # Fallback to single-line processing
-        return [process_line(content, idx) for idx, content in batch_items]
+            # Merge with original line info
+            output = []
+            for i, (line_idx, line_content) in enumerate(batch_items):
+                result = results_by_id.get(i + 1, {})
+                output.append({
+                    "id": line_idx + 1,
+                    "original": line_content,
+                    "translation": result.get("translation", "[Missing translation]"),
+                    "vocabulary": result.get("vocabulary", []),
+                    "notes": result.get("notes", "")
+                })
+
+            return output
+
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"    JSON validation error (attempt {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                print(f"    Retrying...")
+                time.sleep(2)
+            else:
+                print(f"    All retries exhausted, falling back to single-line processing...")
+                return [process_line(content, idx) for idx, content in batch_items]
+
+    # Should not reach here, but fallback just in case
+    return [process_line(content, idx) for idx, content in batch_items]
 
 
 def load_progress() -> Dict:

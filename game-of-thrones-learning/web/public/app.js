@@ -287,8 +287,6 @@ function renderWordTooltip(item) {
   const word = escapeHtml(item.word || '');
   const phonetic = item.phonetic ? escapeHtml(item.phonetic) : '';
   const meaning = item.meaning ? escapeHtml(item.meaning) : '';
-  const example = item.example ? escapeHtml(item.example) : '';
-  const exampleAttr = item.example ? escapeAttr(item.example) : '';
 
   return `
     <span class="word-tooltip" onclick="event.stopPropagation()">
@@ -297,12 +295,6 @@ function renderWordTooltip(item) {
         ${phonetic ? `<span class="phonetic">${phonetic}</span>` : ''}
       </div>
       ${meaning ? `<div class="meaning">${meaning}</div>` : ''}
-      ${example ? `
-        <div class="example-row">
-          <span class="example">${example}</span>
-          <button class="speaker-btn" data-text="${exampleAttr}" title="Read aloud">🔊</button>
-        </div>
-      ` : ''}
     </span>
   `;
 }

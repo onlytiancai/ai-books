@@ -274,19 +274,6 @@ body {
   margin-bottom: 8px;
 }
 
-.word-tooltip .example-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.word-tooltip .example {
-  color: var(--text-muted);
-  font-style: italic;
-  font-size: 13px;
-  flex: 1;
-}
-
 .speaker-btn {
   background: none;
   border: none;
