@@ -1,0 +1,13 @@
+{
+  "name": "game-of-thrones-reader",
+  "version": "1.0.0",
+  "description": "Bilingual novel reader for Game of Thrones",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -35,7 +35,9 @@ def parse_chapters(file_path: str) -> List[Chapter]:
     chapters = []
     current_chapter = None
     current_content = []
-    chapter_pattern = re.compile(r'^(PROLOGUE|\d+\s*-\s*[A-Z]+)$')
+    # Match both formats: "PROLOGUE", "1 - BRAN", and standalone POV names like "TYRION", "EDDARD"
+    pov_names = r'(?:BRAN|CATELYN|DAENERYS|EDDARD|JON|ARYA|TYRION|SANSA)'
+    chapter_pattern = re.compile(rf'^(PROLOGUE|\d+\s*-\s*{pov_names}|{pov_names})$')
 
     for i, line in enumerate(lines):
         line_stripped = line.strip()
@@ -80,9 +82,16 @@ def extract_pov(chapter_id: str) -> Optional[str]:
     if chapter_id == "PROLOGUE":
         return None
 
+    # Try format "1 - BRAN" first
     match = re.match(r'\d+\s*-\s*([A-Z]+)', chapter_id)
     if match:
         return match.group(1)
+
+    # Try standalone POV name format (e.g., "TYRION", "EDDARD")
+    pov_names = ['BRAN', 'CATELYN', 'DAENERYS', 'EDDARD', 'JON', 'ARYA', 'TYRION', 'SANSA']
+    if chapter_id in pov_names:
+        return chapter_id
+
     return None
 
 

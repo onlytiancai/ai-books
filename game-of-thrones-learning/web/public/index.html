@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game of Thrones - Bilingual Reader</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <span id="chapter-info">Chapter: -</span>
+    </div>
+    <div class="header-center">
+      <button id="prev-btn" class="nav-btn">← Prev</button>
+      <span id="page-info">- / -</span>
+      <button id="next-btn" class="nav-btn">Next →</button>
+    </div>
+    <div class="header-right">
+      <label class="toggle-label">
+        <input type="checkbox" id="show-translation" checked>
+        <span>Show Translation</span>
+      </label>
+      <button id="bookmark-btn" class="bookmark-btn">🔖 Save</button>
+    </div>
+  </header>
+
+  <main class="content" id="content">
+    <div class="loading">Loading...</div>
+  </main>
+
+  <footer class="footer">
+    <label>
+      Lines per page:
+      <select id="page-size">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </label>
+    <span>Jump to line: <input type="number" id="jump-input" min="0" value="0"></span>
+    <button id="jump-btn">Go</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

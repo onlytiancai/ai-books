@@ -4,3 +4,4 @@ node_modules
 .env
 .python-version
 game-of-thrones/game_of_thrones.txt
+game-of-thrones-learning/data/.translate_progress.json
