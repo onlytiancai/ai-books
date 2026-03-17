@@ -1,39 +1,53 @@
-You are a professional translator and English teacher specializing in fantasy literature translation and helping Chinese speakers learn English.
+你是一位专业的翻译和英语教师，正在为初中英语水平的中国读者翻译《冰与火之歌》(A Song of Ice and Fire) / 《权力的游戏》(Game of Thrones) 小说。
 
-For each numbered line below, provide comprehensive learning content:
+背景知识：
+- 这是乔治·R·R·马丁的史诗奇幻小说
+- 故事发生在虚构的维斯特洛大陆和厄索斯大陆
+- 主要家族：史塔克家族(Stark)、兰尼斯特家族(Lannister)、坦格利安家族(Targaryen)等
+- 重要地点：临冬城(Winterfell)、君临(King's Landing)、长城(The Wall)等
+- 专有名词翻译参考：
+  - 人物：Eddard Stark = 艾德·史塔克, Jon Snow = 琼恩·雪诺, Tyrion = 提利昂, Daenerys = 丹妮莉丝 等
+  - 地点：Winterfell = 临冬城, King's Landing = 君临城, The Wall = 长城 等
+  - 称谓：Ser = 爵士, Maester = 学士, Lord = 领主 等
 
-1. Chinese translation (keep proper names in established translations)
-2. 3-5 key vocabulary words with phonetic, Chinese meaning, and example sentence
-3. 1-3 useful phrases/idioms with Chinese meaning
-4. Brief analysis notes in Chinese (1-2 sentences about context, character, or plot)
+请为以下每一行提供：
 
-Proper Names Reference:
-- Characters: Eddard Stark = 艾德·史塔克, Catelyn = 凯特琳, Jon Snow = 琼恩·雪诺, Arya = 艾莉亚, Sansa = 珊莎, Bran = 布兰, Robb = 罗柏, Tyrion = 提利昂, Daenerys = 丹妮莉丝, Viserys = 韦赛里斯, etc.
-- Places: Winterfell = 临冬城, The Wall = 长城, King's Landing = 君临城, The North = 北境, The Seven Kingdoms = 七国, Pentos = 潘托斯, etc.
-- Organizations: Night's Watch = 守夜人, Wildlings = 野人, etc.
-- Titles: Ser = 爵士, Maester = 学士, Lord = 领主, King = 国王, etc.
+1. 中文翻译（保留专有名词的约定翻译）
+2. 重点词汇（适合初中英语水平，可多选一些常用词，**释义要结合上下文**，不要给通用词典释义）
+   - 例如：单词"bank"在本句中是指"河岸"而非"银行"
 
-Lines to process:
+示例说明：
+- 如果原文是 "He walked along the bank of the river"
+- vocabulary 应该是：{"word": "bank", "phonetic": "/bæŋk/", "meaning": "河岸（此处非银行之意）"}
+- 而不是：{"word": "bank", "phonetic": "/bæŋk/", "meaning": "银行；河岸"}
+
+3. 解读笔记（像资深冰火读者那样解读，可包含：
+   - 情节分析
+   - 人物性格/关系
+   - 伏笔暗示
+   - 该句中出现的常用英语表达/语法点
+   如果没有特别的可只分析情节）
+
+待处理文本：
 {{LINES}}
 
-Return a JSON array with this exact structure:
+返回JSON数组，格式如下：
 [
   {
     "id": 1,
-    "translation": "Chinese translation here",
+    "translation": "中文翻译",
     "vocabulary": [
-      {"word": "example", "phonetic": "/ɪɡˈzæmpəl/", "meaning": "Chinese meaning", "example": "An original example sentence."}
+      {"word": "单词", "phonetic": "/音标/", "meaning": "中文含义"}
     ],
-    "phrases": [
-      {"phrase": "phrase here", "meaning": "Chinese meaning"}
-    ],
-    "notes": "Brief Chinese analysis notes"
+    "notes": "详细的解读笔记..."
   },
   ...
 ]
 
-IMPORTANT:
-- Return ONLY the JSON array, no markdown, no explanations
-- Each object must have all 5 fields: id, translation, vocabulary, phrases, notes
-- The id must match the line number (1, 2, 3, etc.)
-- vocabulary and phrases should be arrays (can be empty if nothing notable)
+注意：
+- 只返回JSON数组，不要markdown包装，不要额外解释
+- 每个对象必须包含：id, translation, vocabulary, notes
+- id必须与行号对应（1, 2, 3...）
+- vocabulary是数组，不包含例句
+- **词汇释义必须结合上下文**，给出单词在本文中的具体含义，而非列出所有常见义项
+- notes要详细一些，像一个热爱冰火的读者在分享阅读心得

@@ -135,18 +135,6 @@ def extract_vocabulary(paragraph: str) -> List[Dict]:
         return []
 
 
-def extract_phrases(paragraph: str) -> List[Dict]:
-    """Extract phrases/idioms from a paragraph."""
-    template = load_prompt("phrases")
-    prompt = fill_prompt(template, paragraph=paragraph)
-    response = call_llm(prompt)
-    try:
-        return parse_json_response(response)
-    except json.JSONDecodeError:
-        print(f"    Warning: Failed to parse phrases JSON")
-        return []
-
-
 def analyze_paragraph(paragraph: str) -> str:
     """Generate analysis notes for a paragraph."""
     template = load_prompt("analysis")
@@ -155,14 +143,14 @@ def analyze_paragraph(paragraph: str) -> str:
 
 
 def process_line(line: str, line_idx: int) -> dict:
-    """Process a single line: translate, extract vocab/phrases, analyze.
+    """Process a single line: translate, extract vocab, analyze.
 
     Args:
         line: The line content to process
         line_idx: The index of the line (0-based)
 
     Returns:
-        Dictionary with id, original, translation, vocabulary, phrases, notes
+        Dictionary with id, original, translation, vocabulary, notes
     """
     try:
         print("    Translating...")
@@ -170,9 +158,6 @@ def process_line(line: str, line_idx: int) -> dict:
 
         print("    Extracting vocabulary...")
         vocabulary = extract_vocabulary(line)
-
-        print("    Extracting phrases...")
-        phrases = extract_phrases(line)
 
         print("    Analyzing...")
         notes = analyze_paragraph(line)
@@ -182,7 +167,6 @@ def process_line(line: str, line_idx: int) -> dict:
             "original": line,
             "translation": translation,
             "vocabulary": vocabulary,
-            "phrases": phrases,
             "notes": notes
         }
     except Exception as e:
@@ -193,7 +177,6 @@ def process_line(line: str, line_idx: int) -> dict:
             "original": line,
             "translation": f"[Error: {e}]",
             "vocabulary": [],
-            "phrases": [],
             "notes": ""
         }
 
@@ -205,7 +188,7 @@ def process_batch(batch_items: List[tuple]) -> List[dict]:
         batch_items: List of (line_idx, line_content) tuples
 
     Returns:
-        List of result dictionaries with id, original, translation, vocabulary, phrases, notes
+        List of result dictionaries with id, original, translation, vocabulary, notes
     """
     if not batch_items:
         return []
@@ -237,7 +220,6 @@ def process_batch(batch_items: List[tuple]) -> List[dict]:
                 "original": line_content,
                 "translation": result.get("translation", "[Missing translation]"),
                 "vocabulary": result.get("vocabulary", []),
-                "phrases": result.get("phrases", []),
                 "notes": result.get("notes", "")
             })
 

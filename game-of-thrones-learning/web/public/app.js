@@ -21,6 +21,7 @@ const bookmarkBtn = document.getElementById('bookmark-btn');
 const showTranslationCheckbox = document.getElementById('show-translation');
 const showNotesCheckbox = document.getElementById('show-notes');
 const stopSpeakingBtn = document.getElementById('stop-speaking-btn');
+const bookmarkInfoEl = document.getElementById('bookmark-info');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -68,7 +69,18 @@ jumpInput.addEventListener('keypress', (e) => {
 
 bookmarkBtn.addEventListener('click', () => {
   saveBookmark();
-  showNotification('Bookmark saved!');
+  updateBookmarkInfo();
+  showNotification('Bookmark saved at line ' + currentStartLine);
+});
+
+bookmarkInfoEl.addEventListener('click', () => {
+  const saved = localStorage.getItem('got-reader-bookmark');
+  if (saved) {
+    const bookmark = JSON.parse(saved);
+    currentStartLine = Math.floor(bookmark.line / pageSize) * pageSize;
+    loadLines(currentStartLine);
+    updateURL();
+  }
 });
 
 showTranslationCheckbox.addEventListener('change', (e) => {
@@ -400,6 +412,9 @@ function loadFromURL() {
       currentStartLine = Math.floor(bookmark.line / pageSize) * pageSize;
     }
   }
+
+  // Show bookmark info
+  updateBookmarkInfo();
 }
 
 function loadPreferences() {
@@ -421,6 +436,20 @@ function saveBookmark() {
     line: currentStartLine,
     timestamp: Date.now()
   }));
+}
+
+function updateBookmarkInfo() {
+  const saved = localStorage.getItem('got-reader-bookmark');
+  if (saved) {
+    const bookmark = JSON.parse(saved);
+    const date = new Date(bookmark.timestamp);
+    const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    bookmarkInfoEl.textContent = `📌 Line ${bookmark.line} (${timeStr})`;
+    bookmarkInfoEl.style.display = 'inline';
+    bookmarkInfoEl.title = 'Click to jump to bookmark';
+  } else {
+    bookmarkInfoEl.style.display = 'none';
+  }
 }
 
 function showNotification(message) {
