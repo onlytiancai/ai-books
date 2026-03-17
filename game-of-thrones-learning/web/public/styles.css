@@ -16,13 +16,14 @@
   --text-muted: #7f8c8d;
   --highlight-color: #fff3b0;
   --highlight-border: #ffc107;
+  --max-width: 800px;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -36,6 +37,9 @@ body {
   justify-content: space-between;
   padding: 0 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .header-left, .header-right {
@@ -52,7 +56,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 15px;
+  gap: 12px;
 }
 
 .nav-btn {
@@ -78,14 +82,14 @@ body {
 .toggle-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .toggle-label input {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
 }
 
@@ -93,7 +97,7 @@ body {
   background: #27ae60;
   color: white;
   border: none;
-  padding: 8px 12px;
+  padding: 8px 10px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
@@ -111,8 +115,10 @@ body {
 
 .content {
   flex: 1;
-  overflow: auto;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .loading {
@@ -123,8 +129,8 @@ body {
 }
 
 .line-container {
-  display: flex;
-  gap: 20px;
+  width: 100%;
+  max-width: var(--max-width);
   margin-bottom: 20px;
   background: var(--card-bg);
   border-radius: 8px;
@@ -132,54 +138,46 @@ body {
   overflow: hidden;
 }
 
-.left-panel {
-  flex: 1;
+.line-header {
   display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--border-color);
-}
-
-.original-section {
-  padding: 20px;
-  background: #fafafa;
-  flex: 1;
-}
-
-.translation-section {
-  padding: 20px;
-  background: #fff;
-  border-top: 1px solid var(--border-color);
-}
-
-.translation-section.hidden {
-  display: none;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .line-number {
   font-size: 12px;
   color: var(--text-muted);
-  margin-bottom: 8px;
+}
+
+.section {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.original-section {
+  background: #fafafa;
+}
+
+.translation-section {
+  background: white;
+}
+
+.translation-section.hidden,
+.notes-section.hidden {
+  display: none;
 }
 
 .original-text {
-  font-size: 16px;
-  line-height: 2;
+  font-size: 17px;
+  line-height: 1.9;
   color: var(--text-color);
-}
-
-.original-text .speaker-btn-line {
-  margin-left: 12px;
-  vertical-align: middle;
-  font-size: 18px;
-  opacity: 0.5;
-}
-
-.original-text:hover .speaker-btn-line {
-  opacity: 0.8;
-}
-
-.original-text .speaker-btn-line:hover {
-  opacity: 1;
 }
 
 .original-text .word-highlight {
@@ -198,6 +196,21 @@ body {
 
 .original-text .word-highlight.active {
   background: #ffe57f;
+}
+
+.original-text .speaker-btn-line {
+  margin-left: 12px;
+  font-size: 18px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.original-text:hover .speaker-btn-line {
+  opacity: 0.8;
+}
+
+.original-text .speaker-btn-line:hover {
+  opacity: 1;
 }
 
 /* Inline vocabulary tooltip */
@@ -290,103 +303,44 @@ body {
 }
 
 .translation-text {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.8;
   color: #555;
 }
 
-.right-panel {
-  flex: 0.8;
-  padding: 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.notes-section {
+  background: #fffbf0;
 }
 
-.section {
-  margin: 0;
-}
-
-.section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--secondary-color);
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.section-content {
+.note-text {
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
+  color: #666;
 }
 
-/* Phrase list with hover */
-.phrase-list {
+/* Floating stop button */
+.stop-speaking-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+  z-index: 100;
+  transition: all 0.2s;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
-.phrase-item {
-  position: relative;
-  padding: 6px 12px;
-  background: #e8f4fd;
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--primary-color);
-  transition: all 0.2s;
-  border: 1px solid transparent;
-}
-
-.phrase-item:hover {
-  background: #d4e9f7;
-  border-color: var(--secondary-color);
-}
-
-.phrase-tooltip {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  margin-top: 8px;
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 12px 16px;
-  min-width: 200px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  z-index: 100;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-  transition: all 0.2s;
-}
-
-.phrase-item:hover .phrase-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.phrase-tooltip .phrase-text {
-  font-weight: 600;
-  color: var(--primary-color);
-}
-
-.phrase-tooltip .phrase-meaning {
-  margin-top: 6px;
-  color: var(--text-muted);
-}
-
-/* Notes */
-.note-text {
-  color: var(--text-color);
-  line-height: 1.6;
-  padding: 12px;
-  background: #fff3cd;
-  border-radius: 4px;
-  border-left: 3px solid #ffc107;
+.stop-speaking-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
 }
 
 .footer {
@@ -434,6 +388,7 @@ body {
   text-align: center;
   padding: 60px 20px;
   color: var(--text-muted);
+  max-width: var(--max-width);
 }
 
 .empty-state h2 {
@@ -442,32 +397,6 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-  .line-container {
-    flex-direction: column;
-  }
-
-  .left-panel {
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .right-panel {
-    flex: 1;
-  }
-
-  .word-tooltip,
-  .phrase-tooltip {
-    position: fixed;
-    left: 20px;
-    right: 20px;
-    top: auto;
-    margin-top: 8px;
-    min-width: auto;
-    max-width: none;
-  }
-}
-
 @media (max-width: 600px) {
   .header {
     flex-wrap: wrap;
@@ -490,6 +419,7 @@ body {
   .header-right {
     order: 2;
     flex: 1;
+    gap: 8px;
   }
 
   .toggle-label span {
@@ -501,5 +431,22 @@ body {
     height: auto;
     padding: 10px;
     gap: 10px;
+  }
+
+  .word-tooltip {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    top: auto;
+    margin-top: 8px;
+    min-width: auto;
+    max-width: none;
+  }
+
+  .stop-speaking-btn {
+    bottom: 100px;
+    right: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
   }
 }

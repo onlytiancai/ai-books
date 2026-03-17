@@ -19,9 +19,13 @@
     <div class="header-right">
       <label class="toggle-label">
         <input type="checkbox" id="show-translation" checked>
-        <span>Show Translation</span>
+        <span>Translation</span>
       </label>
-      <button id="bookmark-btn" class="bookmark-btn">🔖 Save</button>
+      <label class="toggle-label">
+        <input type="checkbox" id="show-notes" checked>
+        <span>Notes</span>
+      </label>
+      <button id="bookmark-btn" class="bookmark-btn">🔖</button>
     </div>
   </header>
 
@@ -42,6 +46,11 @@
     <span>Jump to line: <input type="number" id="jump-input" min="0" value="0"></span>
     <button id="jump-btn">Go</button>
   </footer>
+
+  <!-- Floating stop button for TTS -->
+  <button id="stop-speaking-btn" class="stop-speaking-btn" style="display: none;">
+    🔇 Stop Reading
+  </button>
 
   <script src="app.js"></script>
 </body>

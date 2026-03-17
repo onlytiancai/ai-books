@@ -4,6 +4,7 @@ let pageSize = 10;
 let totalLines = 0;
 let currentData = [];
 let showTranslation = true;
+let showNotes = true;
 let currentUtterance = null;
 let currentSpeakerBtn = null;
 
@@ -18,15 +19,15 @@ const jumpInput = document.getElementById('jump-input');
 const jumpBtn = document.getElementById('jump-btn');
 const bookmarkBtn = document.getElementById('bookmark-btn');
 const showTranslationCheckbox = document.getElementById('show-translation');
+const showNotesCheckbox = document.getElementById('show-notes');
+const stopSpeakingBtn = document.getElementById('stop-speaking-btn');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   await loadTotalLines();
   loadFromURL();
-  loadTranslationPreference();
+  loadPreferences();
   await loadLines(currentStartLine);
-
-  // Update jump input
   jumpInput.value = currentStartLine;
 });
 
@@ -62,9 +63,7 @@ jumpBtn.addEventListener('click', () => {
 });
 
 jumpInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    jumpBtn.click();
-  }
+  if (e.key === 'Enter') jumpBtn.click();
 });
 
 bookmarkBtn.addEventListener('click', () => {
@@ -75,18 +74,23 @@ bookmarkBtn.addEventListener('click', () => {
 showTranslationCheckbox.addEventListener('change', (e) => {
   showTranslation = e.target.checked;
   localStorage.setItem('got-reader-show-translation', showTranslation);
-  updateTranslationVisibility();
+  updateVisibility();
 });
+
+showNotesCheckbox.addEventListener('change', (e) => {
+  showNotes = e.target.checked;
+  localStorage.setItem('got-reader-show-notes', showNotes);
+  updateVisibility();
+});
+
+stopSpeakingBtn.addEventListener('click', stopSpeaking);
 
 // Keyboard navigation
 document.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-
-  if (e.key === 'ArrowLeft' && !prevBtn.disabled) {
-    prevBtn.click();
-  } else if (e.key === 'ArrowRight' && !nextBtn.disabled) {
-    nextBtn.click();
-  }
+  if (e.key === 'ArrowLeft' && !prevBtn.disabled) prevBtn.click();
+  else if (e.key === 'ArrowRight' && !nextBtn.disabled) nextBtn.click();
+  else if (e.key === 'Escape') stopSpeaking();
 });
 
 // API Functions
@@ -102,11 +106,7 @@ async function loadTotalLines() {
 
 async function loadLines(start) {
   contentEl.innerHTML = '<div class="loading">Loading...</div>';
-
-  // Stop any ongoing speech
   stopSpeaking();
-
-  // Clear previous data to free memory
   currentData = [];
 
   try {
@@ -126,11 +126,7 @@ async function loadLines(start) {
     renderLines(currentData);
     updateNavigation();
     updateChapterInfo();
-
-    // Scroll to top
     contentEl.scrollTop = 0;
-
-    // Update jump input
     jumpInput.value = start;
   } catch (err) {
     console.error('Error loading lines:', err);
@@ -145,26 +141,22 @@ async function loadLines(start) {
 
 function renderLines(lines) {
   let html = '';
-
   lines.forEach((line) => {
     html += renderLine(line);
   });
-
   contentEl.innerHTML = html;
 
   // Add click handlers for speaker buttons
   document.querySelectorAll('.speaker-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const text = btn.dataset.text;
-      speakText(text, btn);
+      speakText(btn.dataset.text, btn);
     });
   });
 
   // Add click handlers for word highlights
   document.querySelectorAll('.word-highlight').forEach(el => {
     el.addEventListener('click', (e) => {
-      // Toggle active state for mobile
       document.querySelectorAll('.word-highlight.active').forEach(active => {
         active.classList.remove('active');
       });
@@ -185,29 +177,30 @@ function renderLines(lines) {
 function renderLine(line) {
   const lineNum = line.line_number !== undefined ? line.line_number : '-';
   const translationHidden = showTranslation ? '' : 'hidden';
+  const notesHidden = showNotes ? '' : 'hidden';
   const originalText = line.original || '';
 
-  // Highlight vocabulary words in original text
   const highlightedOriginal = highlightVocabulary(originalText, line.vocabulary);
 
   return `
     <div class="line-container">
-      <div class="left-panel">
-        <div class="original-section">
-          <div class="line-number">Line ${lineNum}${line.chapter_id ? ' | ' + line.chapter_id : ''}</div>
-          <div class="original-text">
-            ${highlightedOriginal}
-            <button class="speaker-btn speaker-btn-line" data-text="${escapeAttr(originalText)}" title="Read original text">🔊</button>
-          </div>
-        </div>
-        <div class="translation-section ${translationHidden}">
-          <div class="translation-text">${escapeHtml(line.translation || '')}</div>
+      <div class="line-header">
+        <div class="line-number">Line ${lineNum}${line.chapter_id ? ' | ' + line.chapter_id : ''}</div>
+      </div>
+      <div class="section original-section">
+        <div class="original-text">
+          ${highlightedOriginal}
+          <button class="speaker-btn speaker-btn-line" data-text="${escapeAttr(originalText)}" title="Read aloud">🔊</button>
         </div>
       </div>
-      <div class="right-panel">
-        ${renderPhrases(line.phrases)}
-        ${renderNotes(line.notes)}
+      <div class="section translation-section ${translationHidden}">
+        <div class="translation-text">${escapeHtml(line.translation || '')}</div>
       </div>
+      ${line.notes ? `
+        <div class="section notes-section ${notesHidden}">
+          <div class="note-text">${escapeHtml(line.notes)}</div>
+        </div>
+      ` : ''}
     </div>
   `;
 }
@@ -219,44 +212,83 @@ function highlightVocabulary(text, vocabulary) {
 
   // Sort by word length (longest first) to avoid partial matches
   const sortedVocab = [...vocabulary].sort((a, b) => {
-    const aWord = (a.word || '').toLowerCase();
-    const bWord = (b.word || '').toLowerCase();
-    return bWord.length - aWord.length;
+    return (b.word || '').length - (a.word || '').length;
   });
 
-  let result = escapeHtml(text);
+  // Find all word positions in original text
+  const matches = [];
   const replacedWords = new Set();
 
   sortedVocab.forEach((item) => {
     const word = item.word;
     if (!word || replacedWords.has(word.toLowerCase())) return;
 
-    // Create case-insensitive regex for whole word match
     const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`\\b(${escapedWord})\\b`, 'gi');
 
-    if (regex.test(result)) {
-      const tooltipHtml = renderWordTooltip(item);
-      result = result.replace(regex, `<span class="word-highlight">$1${tooltipHtml}</span>`);
-      replacedWords.add(word.toLowerCase());
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      // Check if this position overlaps with existing matches
+      const overlaps = matches.some(m =>
+        (match.index >= m.start && match.index < m.end) ||
+        (match.index + match[0].length > m.start && match.index + match[0].length <= m.end)
+      );
+
+      if (!overlaps) {
+        matches.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          word: match[0],
+          item: item
+        });
+      }
     }
+    replacedWords.add(word.toLowerCase());
   });
+
+  // Sort matches by position
+  matches.sort((a, b) => a.start - b.start);
+
+  // Build result string
+  let result = '';
+  let lastEnd = 0;
+
+  matches.forEach((match) => {
+    // Add text before this match
+    result += escapeHtml(text.slice(lastEnd, match.start));
+
+    // Add highlighted word with tooltip
+    const tooltipHtml = renderWordTooltip(match.item);
+    result += `<span class="word-highlight">${escapeHtml(match.word)}${tooltipHtml}</span>`;
+
+    lastEnd = match.end;
+  });
+
+  // Add remaining text
+  result += escapeHtml(text.slice(lastEnd));
 
   return result;
 }
 
 function renderWordTooltip(item) {
+  // Escape all content in tooltip to prevent HTML injection
+  const word = escapeHtml(item.word || '');
+  const phonetic = item.phonetic ? escapeHtml(item.phonetic) : '';
+  const meaning = item.meaning ? escapeHtml(item.meaning) : '';
+  const example = item.example ? escapeHtml(item.example) : '';
+  const exampleAttr = item.example ? escapeAttr(item.example) : '';
+
   return `
     <span class="word-tooltip" onclick="event.stopPropagation()">
       <div class="word-head">
-        <span class="word-text">${escapeHtml(item.word || '')}</span>
-        ${item.phonetic ? `<span class="phonetic">${escapeHtml(item.phonetic)}</span>` : ''}
+        <span class="word-text">${word}</span>
+        ${phonetic ? `<span class="phonetic">${phonetic}</span>` : ''}
       </div>
-      ${item.meaning ? `<div class="meaning">${escapeHtml(item.meaning)}</div>` : ''}
-      ${item.example ? `
+      ${meaning ? `<div class="meaning">${meaning}</div>` : ''}
+      ${example ? `
         <div class="example-row">
-          <span class="example">${escapeHtml(item.example)}</span>
-          <button class="speaker-btn" data-text="${escapeAttr(item.example)}" title="Read aloud">🔊</button>
+          <span class="example">${example}</span>
+          <button class="speaker-btn" data-text="${exampleAttr}" title="Read aloud">🔊</button>
         </div>
       ` : ''}
     </span>
@@ -272,44 +304,10 @@ function escapeAttr(text) {
     .replace(/>/g, '&gt;');
 }
 
-function renderPhrases(phrases) {
-  if (!phrases || phrases.length === 0) return '';
-
-  let html = '<div class="section"><div class="section-title">Phrases</div><div class="phrase-list">';
-
-  phrases.forEach((item) => {
-    html += `
-      <div class="phrase-item">
-        ${escapeHtml(item.phrase || '')}
-        <div class="phrase-tooltip">
-          <div class="phrase-text">${escapeHtml(item.phrase || '')}</div>
-          ${item.meaning ? `<div class="phrase-meaning">${escapeHtml(item.meaning)}</div>` : ''}
-        </div>
-      </div>
-    `;
-  });
-
-  html += '</div></div>';
-  return html;
-}
-
-function renderNotes(notes) {
-  if (!notes) return '';
-
-  return `
-    <div class="section">
-      <div class="section-title">Notes</div>
-      <div class="note-text">${escapeHtml(notes)}</div>
-    </div>
-  `;
-}
-
 // Text-to-Speech Functions
 function speakText(text, btn) {
-  // Stop any current speech
   stopSpeaking();
 
-  // Check if speech synthesis is available
   if (!('speechSynthesis' in window)) {
     showNotification('Speech synthesis not supported');
     return;
@@ -318,21 +316,22 @@ function speakText(text, btn) {
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentSpeakerBtn = btn;
 
-  // Set language to English
   currentUtterance.lang = 'en-US';
   currentUtterance.rate = 0.9;
 
-  // Add class for animation
-  btn.classList.add('speaking');
+  if (btn) btn.classList.add('speaking');
+  stopSpeakingBtn.style.display = 'flex';
 
   currentUtterance.onend = () => {
-    btn.classList.remove('speaking');
+    if (btn) btn.classList.remove('speaking');
+    stopSpeakingBtn.style.display = 'none';
     currentUtterance = null;
     currentSpeakerBtn = null;
   };
 
   currentUtterance.onerror = () => {
-    btn.classList.remove('speaking');
+    if (btn) btn.classList.remove('speaking');
+    stopSpeakingBtn.style.display = 'none';
     currentUtterance = null;
     currentSpeakerBtn = null;
   };
@@ -347,23 +346,24 @@ function stopSpeaking() {
   if (currentSpeakerBtn) {
     currentSpeakerBtn.classList.remove('speaking');
   }
+  stopSpeakingBtn.style.display = 'none';
   currentUtterance = null;
   currentSpeakerBtn = null;
 }
 
-function updateTranslationVisibility() {
-  const sections = document.querySelectorAll('.translation-section');
-  sections.forEach((section) => {
-    section.classList.toggle('hidden', !showTranslation);
+function updateVisibility() {
+  document.querySelectorAll('.translation-section').forEach(el => {
+    el.classList.toggle('hidden', !showTranslation);
+  });
+  document.querySelectorAll('.notes-section').forEach(el => {
+    el.classList.toggle('hidden', !showNotes);
   });
 }
 
 function updateNavigation() {
   const currentPage = Math.floor(currentStartLine / pageSize) + 1;
   const totalPages = Math.ceil(totalLines / pageSize);
-
   pageInfoEl.textContent = `${currentPage} / ${totalPages}`;
-
   prevBtn.disabled = currentStartLine <= 0;
   nextBtn.disabled = currentStartLine + pageSize >= totalLines;
 }
@@ -381,8 +381,6 @@ function updateURL() {
   const url = new URL(window.location);
   url.searchParams.set('line', currentStartLine);
   window.history.pushState({}, '', url);
-
-  // Auto-save bookmark
   saveBookmark();
 }
 
@@ -396,7 +394,6 @@ function loadFromURL() {
       currentStartLine = Math.floor(lineNum / pageSize) * pageSize;
     }
   } else {
-    // Try to load from localStorage
     const savedBookmark = localStorage.getItem('got-reader-bookmark');
     if (savedBookmark) {
       const bookmark = JSON.parse(savedBookmark);
@@ -405,20 +402,25 @@ function loadFromURL() {
   }
 }
 
-function loadTranslationPreference() {
-  const saved = localStorage.getItem('got-reader-show-translation');
-  if (saved !== null) {
-    showTranslation = saved === 'true';
+function loadPreferences() {
+  const savedTranslation = localStorage.getItem('got-reader-show-translation');
+  if (savedTranslation !== null) {
+    showTranslation = savedTranslation === 'true';
     showTranslationCheckbox.checked = showTranslation;
+  }
+
+  const savedNotes = localStorage.getItem('got-reader-show-notes');
+  if (savedNotes !== null) {
+    showNotes = savedNotes === 'true';
+    showNotesCheckbox.checked = showNotes;
   }
 }
 
 function saveBookmark() {
-  const bookmark = {
+  localStorage.setItem('got-reader-bookmark', JSON.stringify({
     line: currentStartLine,
     timestamp: Date.now()
-  };
-  localStorage.setItem('got-reader-bookmark', JSON.stringify(bookmark));
+  }));
 }
 
 function showNotification(message) {
@@ -435,7 +437,6 @@ function showNotification(message) {
   `;
   notification.textContent = message;
   document.body.appendChild(notification);
-
   setTimeout(() => {
     notification.style.opacity = '0';
     notification.style.transition = 'opacity 0.3s';
@@ -443,7 +444,6 @@ function showNotification(message) {
   }, 2000);
 }
 
-// Utility Functions
 function escapeHtml(text) {
   if (!text) return '';
   const div = document.createElement('div');
