@@ -1,0 +1,6 @@
+node_modules
+*.pyc
+.DS_Store
+.env
+.python-version
+game-of-thrones/game_of_thrones.txt

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ chapter }} - Game of Thrones English Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .paragraph-card {
+            transition: all 0.3s ease;
+        }
+        .paragraph-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .translation {
+            display: none;
+        }
+        .translation.visible {
+            display: block;
+        }
+        .vocabulary-card {
+            transition: all 0.2s ease;
+        }
+        .vocabulary-card:hover {
+            background: #f3f4f6;
+        }
+        .click-hint {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        .word-chip {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.125rem;
+            background: #e5e7eb;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .word-chip:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        .phonetic {
+            font-family: 'Lucida Sans Unicode', 'Arial Unicode MS', sans-serif;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">{{ chapter }}</h1>
+            {% if pov %}
+            <p class="text-indigo-200 mt-1">POV: {{ pov }}</p>
+            {% endif %}
+            <p class="text-indigo-300 text-sm mt-2">
+                段落数：{{ paragraphs|length }} |
+                {{ chapter_summary[:50] }}...
+            </p>
+        </div>
+    </header>
+
+    <!-- Chapter Summary -->
+    <section class="container mx-auto px-4 py-6">
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-3">📖 本章概要</h2>
+            <p class="text-gray-700">{{ chapter_summary }}</p>
+        </div>
+
+        {% if character_notes %}
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-3">👤 人物说明</h2>
+            <p class="text-gray-700">{{ character_notes }}</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Paragraphs -->
+    <main class="container mx-auto px-4 py-6">
+        <div class="space-y-6">
+            {% for para in paragraphs %}
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-{{ para.id }}">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph {{ para.id }}
+                        </span>
+                        <button onclick="toggleTranslation({{ para.id }})"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        {{ para.original }}
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-{{ para.id }}" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">{{ para.translation }}</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    {% if para.vocabulary or para.phrases %}
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <!-- Vocabulary -->
+                        {% if para.vocabulary %}
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                重点单词
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for word in para.vocabulary %}
+                                <span class="word-chip" onclick="showWordDetail('{{ word.word }}', '{{ word.phonetic }}', '{{ word.meaning }}', '{{ word.example }}')"
+                                      title="点击查看详情">
+                                    {{ word.word }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Phrases -->
+                        {% if para.phrases %}
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                短语/习语
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for phrase in para.phrases %}
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="{{ phrase.meaning }}">
+                                    {{ phrase.phrase }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Analysis Notes -->
+                    {% if para.notes %}
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-gray-600 text-sm">{{ para.notes }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Word Detail Modal -->
+    <div id="word-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+         onclick="closeWordModal()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="modal-word" class="text-2xl font-bold text-gray-800"></h3>
+                <button onclick="closeWordModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <p id="modal-phonetic" class="phonetic text-lg mb-3"></p>
+            <p id="modal-meaning" class="text-gray-700 mb-4"></p>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <p class="text-sm text-gray-500 mb-1">Example:</p>
+                <p id="modal-example" class="text-gray-800 italic"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">
+                Game of Thrones English Learning Book Generator
+            </p>
+            <p class="text-xs text-gray-500 mt-2">
+                Generated for educational purposes
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleTranslation(paraId) {
+            const translation = document.getElementById(`translation-${paraId}`);
+            translation.classList.toggle('visible');
+        }
+
+        function showWordDetail(word, phonetic, meaning, example) {
+            document.getElementById('modal-word').textContent = word;
+            document.getElementById('modal-phonetic').textContent = phonetic;
+            document.getElementById('modal-meaning').textContent = meaning;
+            document.getElementById('modal-example').textContent = `"${example}"`;
+            document.getElementById('word-modal').classList.remove('hidden');
+            document.getElementById('word-modal').classList.add('flex');
+        }
+
+        function closeWordModal() {
+            document.getElementById('word-modal').classList.add('hidden');
+            document.getElementById('word-modal').classList.remove('flex');
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeWordModal();
+            }
+        });
+    </script>
+</body>
+</html>

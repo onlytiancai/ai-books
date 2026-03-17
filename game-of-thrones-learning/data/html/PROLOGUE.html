@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROLOGUE - Game of Thrones English Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .paragraph-card {
+            transition: all 0.3s ease;
+        }
+        .paragraph-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .translation {
+            display: none;
+        }
+        .translation.visible {
+            display: block;
+        }
+        .vocabulary-card {
+            transition: all 0.2s ease;
+        }
+        .vocabulary-card:hover {
+            background: #f3f4f6;
+        }
+        .click-hint {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        .word-chip {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.125rem;
+            background: #e5e7eb;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .word-chip:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        .phonetic {
+            font-family: 'Lucida Sans Unicode', 'Arial Unicode MS', sans-serif;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">PROLOGUE</h1>
+            
+            <p class="text-indigo-300 text-sm mt-2">
+                段落数：10 |
+                本章开篇描绘了守夜人游骑兵在长城以北的鬼影森林中追踪野人时面临的紧张局势。经验丰富的老兵因夜幕与莫名...
+            </p>
+        </div>
+    </header>
+
+    <!-- Chapter Summary -->
+    <section class="container mx-auto px-4 py-6">
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-3">📖 本章概要</h2>
+            <p class="text-gray-700">本章开篇描绘了守夜人游骑兵在长城以北的鬼影森林中追踪野人时面临的紧张局势。经验丰富的老兵因夜幕与莫名的寒意主张撤退，却遭到贵族指挥官罗伊斯爵士的傲慢拒绝，凸显了无知与经验的冲突。阴森的环境描写与关于亡者的对话暗示了某种超越生者的恐怖威胁正在逼近，预示着即将到来的危险。</p>
+        </div>
+
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-3">👤 人物说明</h2>
+            <p class="text-gray-700">序幕章节，主要介绍守夜人巡逻的场景。</p>
+        </div>
+        
+    </section>
+
+    <!-- Paragraphs -->
+    <main class="container mx-auto px-4 py-6">
+        <div class="space-y-6">
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-1">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 1
+                        </span>
+                        <button onclick="toggleTranslation(1)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        "We should start back," Gared urged as the woods began to grow dark around them. "The wildlings are dead."
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-1" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">“我们应该往回走了，”加雷德催促道，因为周围的树林开始变得昏暗。“野人已经死了。”</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <!-- Vocabulary -->
+                        
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                重点单词
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="word-chip" onclick="showWordDetail('urged', '/ɜːrdʒd/', '催促，力劝', 'He urged me to finish the work quickly.')"
+                                      title="点击查看详情">
+                                    urged
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('woods', '/wʊdz/', '树林', 'They walked through the dark woods.')"
+                                      title="点击查看详情">
+                                    woods
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('wildlings', '/ˈwaɪdlɪŋz/', '野人（指长城以北的人）', 'The wildlings live beyond the Wall.')"
+                                      title="点击查看详情">
+                                    wildlings
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('dark', '/dɑːrk/', '黑暗的', 'It gets dark early in the winter.')"
+                                      title="点击查看详情">
+                                    dark
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+
+                        <!-- Phrases -->
+                        
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                短语/习语
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="返回，往回走">
+                                    start back
+                                </span>
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="变暗">
+                                    grow dark
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-gray-600 text-sm">开篇通过对话和环境描写营造紧张氛围，"urged" 体现了 Gared 的急切心情。</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-2">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 2
+                        </span>
+                        <button onclick="toggleTranslation(2)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        "Do the dead frighten you?" Ser Waymar Royce asked with just the hint of a smile.
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-2" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">“死人会让你害怕吗？”韦玛·罗伊斯爵士问道，嘴角带着一丝笑意。</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <!-- Vocabulary -->
+                        
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                重点单词
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="word-chip" onclick="showWordDetail('frighten', '/ˈfraɪtn/', '使害怕', ' loud noises frighten the dog.')"
+                                      title="点击查看详情">
+                                    frighten
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('hint', '/hɪnt/', '暗示，细微的迹象', 'There was a hint of sadness in her voice.')"
+                                      title="点击查看详情">
+                                    hint
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('smile', '/smaɪl/', '微笑', 'She gave him a warm smile.')"
+                                      title="点击查看详情">
+                                    smile
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('Ser', '/sɜːr/', '爵士（骑士头衔）', 'Ser Arthur is a famous knight.')"
+                                      title="点击查看详情">
+                                    Ser
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+
+                        <!-- Phrases -->
+                        
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                短语/习语
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="一丝笑意">
+                                    hint of a smile
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-gray-600 text-sm">"hint of a smile" 生动地描绘了 Royce 的轻蔑或自信，与 Gared 的紧张形成对比。</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-3">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 3
+                        </span>
+                        <button onclick="toggleTranslation(3)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        Gared did not rise to the bait. He was an old man, past fifty, and he had seen the lordlings come and go. "Dead is dead," he said. "We have no business with the dead."
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-3" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">加雷德没有上钩。他是个老人，年过五十，见过不少贵族少爷来来去去。“死了就是死了，”他说。“我们与死人无关。”</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <!-- Vocabulary -->
+                        
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                重点单词
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="word-chip" onclick="showWordDetail('bait', '/beɪt/', '诱饵', 'The fish took the bait.')"
+                                      title="点击查看详情">
+                                    bait
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('lordlings', '/ˈlɔːrdlɪŋz/', '小贵族，贵族少爷（略带贬义）', 'The old soldier disliked the young lordlings.')"
+                                      title="点击查看详情">
+                                    lordlings
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('business', '/ˈbɪznəs/', '事务，关系', 'It is none of your business.')"
+                                      title="点击查看详情">
+                                    business
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('past', '/pæst/', '超过，越过', 'He is past sixty years old.')"
+                                      title="点击查看详情">
+                                    past
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+
+                        <!-- Phrases -->
+                        
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                短语/习语
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="上钩，中计">
+                                    rise to the bait
+                                </span>
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="来来去去">
+                                    come and go
+                                </span>
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="与...无关，没理由管...">
+                                    have no business with
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-gray-600 text-sm">"rise to the bait" 是常用习语，表示对挑衅做出反应；"lordlings" 显示了 Gared 对年轻贵族的态度。</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-4">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 4
+                        </span>
+                        <button onclick="toggleTranslation(4)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        "Are they dead?" Royce asked softly. "What proof have we?"
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-4" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">“他们死了吗？”罗伊斯轻声问道。“我们有什么证据？”</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <!-- Vocabulary -->
+                        
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                重点单词
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="word-chip" onclick="showWordDetail('softly', '/ˈsɔːftli/', '轻柔地，低声地', 'She spoke softly to the baby.')"
+                                      title="点击查看详情">
+                                    softly
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('proof', '/pruːf/', '证据，证明', 'Do you have any proof of your claim?')"
+                                      title="点击查看详情">
+                                    proof
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('asked', '/æskt/', '问', 'He asked a difficult question.')"
+                                      title="点击查看详情">
+                                    asked
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('dead', '/ded/', '死的', 'The flower is dead.')"
+                                      title="点击查看详情">
+                                    dead
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+
+                        <!-- Phrases -->
+                        
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                短语/习语
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="轻声问道">
+                                    asked softly
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-gray-600 text-sm">使用 "softly" 表明 Royce 并非在大声质问，而是在冷静地寻求逻辑依据，体现其严谨或傲慢。</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-5">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 5
+                        </span>
+                        <button onclick="toggleTranslation(5)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        "Will saw them," Gared said. "If he says they are dead, that's proof enough for me."
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-5" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">“威尔看见他们了，”加雷德说。“如果他说他们死了，那对我来说就是足够的证据。”</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <!-- Vocabulary -->
+                        
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                重点单词
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="word-chip" onclick="showWordDetail('enough', '/ɪˈnʌf/', '足够的', 'We have enough food for everyone.')"
+                                      title="点击查看详情">
+                                    enough
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('says', '/sez/', '说', 'He says he will come tomorrow.')"
+                                      title="点击查看详情">
+                                    says
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('saw', '/sɔː/', '看见（see 的过去式）', 'I saw a bird in the tree.')"
+                                      title="点击查看详情">
+                                    saw
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('if', '/ɪf/', '如果', 'Call me if you need help.')"
+                                      title="点击查看详情">
+                                    if
+                                </span>
+                                
+                                <span class="word-chip" onclick="showWordDetail('dead', '/ded/', '死的', 'The battery is dead.')"
+                                      title="点击查看详情">
+                                    dead
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+
+                        <!-- Phrases -->
+                        
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                短语/习语
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                
+                                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
+                                      title="足够的证据">
+                                    proof enough
+                                </span>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-gray-600 text-sm">这段对话展示了 Gared 对同伴 Will 的信任，也暗示了不同角色对“证据”的理解差异。</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-6">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 6
+                        </span>
+                        <button onclick="toggleTranslation(6)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        Will had known they would drag him into the quarrel sooner or later. He wished it had been later rather than sooner. “My mother told me that dead men sing no songs,” he put in.
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-6" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-7">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 7
+                        </span>
+                        <button onclick="toggleTranslation(7)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        “My wet nurse said the same thing, Will,” Royce replied. “Never believe anything you hear at a woman’s tit. There are things to be learned even from the dead.” His voice echoed, too loud in the twilit forest.
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-7" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-8">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 8
+                        </span>
+                        <button onclick="toggleTranslation(8)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        “We have a long ride before us,” Gared pointed out. “Eight days, maybe nine. And night is falling.”
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-8" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-9">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 9
+                        </span>
+                        <button onclick="toggleTranslation(9)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        Ser Waymar Royce glanced at the sky with disinterest. “It does that every day about this time. Are you unmanned by the dark, Gared?”
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-9" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                </div>
+            </article>
+            
+            <article class="paragraph-card bg-white rounded-xl shadow-md overflow-hidden"
+                     id="para-10">
+                <!-- Original Text -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                            Paragraph 10
+                        </span>
+                        <button onclick="toggleTranslation(10)"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            显示翻译
+                        </button>
+                    </div>
+
+                    <p class="text-gray-800 text-lg leading-relaxed mb-4">
+                        Will could see the tightness around Gared’s mouth, the barely suppressed anger in his eyes under the thick black hood of his cloak. Gared had spent forty years in the Night’s Watch, man and boy, and he was not accustomed to being made light of. Yet it was more than that. Under the wounded pride, Will could sense something else in the older man. You could taste it; a nervous tension that came perilous close to fear.
+                    </p>
+
+                    <!-- Translation -->
+                    <div id="translation-10" class="translation border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50 rounded-r">
+                        <p class="text-gray-700 text-lg">[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]</p>
+                    </div>
+
+                    <!-- Vocabulary & Phrases -->
+                    
+
+                    <!-- Analysis Notes -->
+                    
+                </div>
+            </article>
+            
+        </div>
+    </main>
+
+    <!-- Word Detail Modal -->
+    <div id="word-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+         onclick="closeWordModal()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="modal-word" class="text-2xl font-bold text-gray-800"></h3>
+                <button onclick="closeWordModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <p id="modal-phonetic" class="phonetic text-lg mb-3"></p>
+            <p id="modal-meaning" class="text-gray-700 mb-4"></p>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <p class="text-sm text-gray-500 mb-1">Example:</p>
+                <p id="modal-example" class="text-gray-800 italic"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">
+                Game of Thrones English Learning Book Generator
+            </p>
+            <p class="text-xs text-gray-500 mt-2">
+                Generated for educational purposes
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleTranslation(paraId) {
+            const translation = document.getElementById(`translation-${paraId}`);
+            translation.classList.toggle('visible');
+        }
+
+        function showWordDetail(word, phonetic, meaning, example) {
+            document.getElementById('modal-word').textContent = word;
+            document.getElementById('modal-phonetic').textContent = phonetic;
+            document.getElementById('modal-meaning').textContent = meaning;
+            document.getElementById('modal-example').textContent = `"${example}"`;
+            document.getElementById('word-modal').classList.remove('hidden');
+            document.getElementById('word-modal').classList.add('flex');
+        }
+
+        function closeWordModal() {
+            document.getElementById('word-modal').classList.add('hidden');
+            document.getElementById('word-modal').classList.remove('flex');
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeWordModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+{
+  "chapter": "PROLOGUE",
+  "pov": null,
+  "paragraphs": [
+    {
+      "id": 1,
+      "original": "\"We should start back,\" Gared urged as the woods began to grow dark around them. \"The wildlings are dead.\"",
+      "translation": "“我们应该往回走了，”加雷德催促道，因为周围的树林开始变得昏暗。“野人已经死了。”",
+      "vocabulary": [
+        {
+          "word": "urged",
+          "phonetic": "/ɜːrdʒd/",
+          "meaning": "催促，力劝",
+          "example": "He urged me to finish the work quickly."
+        },
+        {
+          "word": "woods",
+          "phonetic": "/wʊdz/",
+          "meaning": "树林",
+          "example": "They walked through the dark woods."
+        },
+        {
+          "word": "wildlings",
+          "phonetic": "/ˈwaɪdlɪŋz/",
+          "meaning": "野人（指长城以北的人）",
+          "example": "The wildlings live beyond the Wall."
+        },
+        {
+          "word": "dark",
+          "phonetic": "/dɑːrk/",
+          "meaning": "黑暗的",
+          "example": "It gets dark early in the winter."
+        }
+      ],
+      "phrases": [
+        {
+          "phrase": "start back",
+          "meaning": "返回，往回走"
+        },
+        {
+          "phrase": "grow dark",
+          "meaning": "变暗"
+        }
+      ],
+      "notes": "开篇通过对话和环境描写营造紧张氛围，\"urged\" 体现了 Gared 的急切心情。"
+    },
+    {
+      "id": 2,
+      "original": "\"Do the dead frighten you?\" Ser Waymar Royce asked with just the hint of a smile.",
+      "translation": "“死人会让你害怕吗？”韦玛·罗伊斯爵士问道，嘴角带着一丝笑意。",
+      "vocabulary": [
+        {
+          "word": "frighten",
+          "phonetic": "/ˈfraɪtn/",
+          "meaning": "使害怕",
+          "example": " loud noises frighten the dog."
+        },
+        {
+          "word": "hint",
+          "phonetic": "/hɪnt/",
+          "meaning": "暗示，细微的迹象",
+          "example": "There was a hint of sadness in her voice."
+        },
+        {
+          "word": "smile",
+          "phonetic": "/smaɪl/",
+          "meaning": "微笑",
+          "example": "She gave him a warm smile."
+        },
+        {
+          "word": "Ser",
+          "phonetic": "/sɜːr/",
+          "meaning": "爵士（骑士头衔）",
+          "example": "Ser Arthur is a famous knight."
+        }
+      ],
+      "phrases": [
+        {
+          "phrase": "hint of a smile",
+          "meaning": "一丝笑意"
+        }
+      ],
+      "notes": "\"hint of a smile\" 生动地描绘了 Royce 的轻蔑或自信，与 Gared 的紧张形成对比。"
+    },
+    {
+      "id": 3,
+      "original": "Gared did not rise to the bait. He was an old man, past fifty, and he had seen the lordlings come and go. \"Dead is dead,\" he said. \"We have no business with the dead.\"",
+      "translation": "加雷德没有上钩。他是个老人，年过五十，见过不少贵族少爷来来去去。“死了就是死了，”他说。“我们与死人无关。”",
+      "vocabulary": [
+        {
+          "word": "bait",
+          "phonetic": "/beɪt/",
+          "meaning": "诱饵",
+          "example": "The fish took the bait."
+        },
+        {
+          "word": "lordlings",
+          "phonetic": "/ˈlɔːrdlɪŋz/",
+          "meaning": "小贵族，贵族少爷（略带贬义）",
+          "example": "The old soldier disliked the young lordlings."
+        },
+        {
+          "word": "business",
+          "phonetic": "/ˈbɪznəs/",
+          "meaning": "事务，关系",
+          "example": "It is none of your business."
+        },
+        {
+          "word": "past",
+          "phonetic": "/pæst/",
+          "meaning": "超过，越过",
+          "example": "He is past sixty years old."
+        }
+      ],
+      "phrases": [
+        {
+          "phrase": "rise to the bait",
+          "meaning": "上钩，中计"
+        },
+        {
+          "phrase": "come and go",
+          "meaning": "来来去去"
+        },
+        {
+          "phrase": "have no business with",
+          "meaning": "与...无关，没理由管..."
+        }
+      ],
+      "notes": "\"rise to the bait\" 是常用习语，表示对挑衅做出反应；\"lordlings\" 显示了 Gared 对年轻贵族的态度。"
+    },
+    {
+      "id": 4,
+      "original": "\"Are they dead?\" Royce asked softly. \"What proof have we?\"",
+      "translation": "“他们死了吗？”罗伊斯轻声问道。“我们有什么证据？”",
+      "vocabulary": [
+        {
+          "word": "softly",
+          "phonetic": "/ˈsɔːftli/",
+          "meaning": "轻柔地，低声地",
+          "example": "She spoke softly to the baby."
+        },
+        {
+          "word": "proof",
+          "phonetic": "/pruːf/",
+          "meaning": "证据，证明",
+          "example": "Do you have any proof of your claim?"
+        },
+        {
+          "word": "asked",
+          "phonetic": "/æskt/",
+          "meaning": "问",
+          "example": "He asked a difficult question."
+        },
+        {
+          "word": "dead",
+          "phonetic": "/ded/",
+          "meaning": "死的",
+          "example": "The flower is dead."
+        }
+      ],
+      "phrases": [
+        {
+          "phrase": "asked softly",
+          "meaning": "轻声问道"
+        }
+      ],
+      "notes": "使用 \"softly\" 表明 Royce 并非在大声质问，而是在冷静地寻求逻辑依据，体现其严谨或傲慢。"
+    },
+    {
+      "id": 5,
+      "original": "\"Will saw them,\" Gared said. \"If he says they are dead, that's proof enough for me.\"",
+      "translation": "“威尔看见他们了，”加雷德说。“如果他说他们死了，那对我来说就是足够的证据。”",
+      "vocabulary": [
+        {
+          "word": "enough",
+          "phonetic": "/ɪˈnʌf/",
+          "meaning": "足够的",
+          "example": "We have enough food for everyone."
+        },
+        {
+          "word": "says",
+          "phonetic": "/sez/",
+          "meaning": "说",
+          "example": "He says he will come tomorrow."
+        },
+        {
+          "word": "saw",
+          "phonetic": "/sɔː/",
+          "meaning": "看见（see 的过去式）",
+          "example": "I saw a bird in the tree."
+        },
+        {
+          "word": "if",
+          "phonetic": "/ɪf/",
+          "meaning": "如果",
+          "example": "Call me if you need help."
+        },
+        {
+          "word": "dead",
+          "phonetic": "/ded/",
+          "meaning": "死的",
+          "example": "The battery is dead."
+        }
+      ],
+      "phrases": [
+        {
+          "phrase": "proof enough",
+          "meaning": "足够的证据"
+        }
+      ],
+      "notes": "这段对话展示了 Gared 对同伴 Will 的信任，也暗示了不同角色对“证据”的理解差异。"
+    },
+    {
+      "id": 6,
+      "original": "Will had known they would drag him into the quarrel sooner or later. He wished it had been later rather than sooner. “My mother told me that dead men sing no songs,” he put in.",
+      "translation": "[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]",
+      "vocabulary": [],
+      "phrases": [],
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "original": "“My wet nurse said the same thing, Will,” Royce replied. “Never believe anything you hear at a woman’s tit. There are things to be learned even from the dead.” His voice echoed, too loud in the twilit forest.",
+      "translation": "[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]",
+      "vocabulary": [],
+      "phrases": [],
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "original": "“We have a long ride before us,” Gared pointed out. “Eight days, maybe nine. And night is falling.”",
+      "translation": "[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]",
+      "vocabulary": [],
+      "phrases": [],
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "original": "Ser Waymar Royce glanced at the sky with disinterest. “It does that every day about this time. Are you unmanned by the dark, Gared?”",
+      "translation": "[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]",
+      "vocabulary": [],
+      "phrases": [],
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "original": "Will could see the tightness around Gared’s mouth, the barely suppressed anger in his eyes under the thick black hood of his cloak. Gared had spent forty years in the Night’s Watch, man and boy, and he was not accustomed to being made light of. Yet it was more than that. Under the wounded pride, Will could sense something else in the older man. You could taste it; a nervous tension that came perilous close to fear.",
+      "translation": "[Error: Expecting ',' delimiter: line 72 column 18 (char 2099)]",
+      "vocabulary": [],
+      "phrases": [],
+      "notes": ""
+    }
+  ],
+  "chapter_summary": "本章开篇描绘了守夜人游骑兵在长城以北的鬼影森林中追踪野人时面临的紧张局势。经验丰富的老兵因夜幕与莫名的寒意主张撤退，却遭到贵族指挥官罗伊斯爵士的傲慢拒绝，凸显了无知与经验的冲突。阴森的环境描写与关于亡者的对话暗示了某种超越生者的恐怖威胁正在逼近，预示着即将到来的危险。",
+  "character_notes": "序幕章节，主要介绍守夜人巡逻的场景。",
+  "total_paragraphs": 109,
+  "processed_range": {
+    "start": 0,
+    "end": 10
+  }
+}

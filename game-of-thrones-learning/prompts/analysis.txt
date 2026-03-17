@@ -1,0 +1,17 @@
+You are a literature teacher and expert on "Game of Thrones" by George R.R. Martin.
+
+Provide a brief analysis/notes for the following paragraph to help readers understand the story better.
+
+Requirements:
+1. Keep it concise (1-3 sentences)
+2. Focus on:
+   - What's happening in the scene
+   - Character motivations or emotions
+   - Important plot points
+   - Atmosphere and setting
+3. Write in Chinese
+
+Paragraph to analyze:
+{{PARAGRAPH}}
+
+Return ONLY the analysis notes in Chinese, no other text.
