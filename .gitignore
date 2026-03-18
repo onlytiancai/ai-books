@@ -5,3 +5,5 @@ node_modules
 .python-version
 game-of-thrones/game_of_thrones.txt
 game-of-thrones-learning/data/.translate_progress.json
+game-of-thrones-learning/data/translated_lines.jsonl.bk
+game-of-thrones-learning/data/translated_lines.jsonl
