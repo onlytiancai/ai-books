@@ -1,0 +1,11 @@
+[book]
+title = "The Little Book of Linear Algebra"
+authors = ["Duc-Tam Nguyen"]
+language = "en"
+src = "src"
+
+[preprocessor.katex]
+
+[output.html]
+default-theme = "light"
+no-section-label = true
