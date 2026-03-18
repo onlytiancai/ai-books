@@ -18,11 +18,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+import httpx
 from dotenv import load_dotenv
-from openai import OpenAI
 
-# Load environment variables
-load_dotenv()
+# Load environment variables (override existing env vars)
+load_dotenv(override=True)
 
 # Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -54,11 +54,30 @@ TRANSLATION_PROMPT = """你是一位资深的线性代数教育专家，精通�
 请输出改写后的中文版本（直接输出内容，不要添加额外说明）："""
 
 
-def get_client() -> OpenAI:
-    """Create OpenAI client with configuration."""
-    if not OPENAI_API_KEY:
-        raise ValueError("OPENAI_API_KEY not found in .env file")
-    return OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_API_BASE)
+def translate_section(section_num: int, content: str) -> str:
+    """Translate a section using API directly with httpx."""
+    prompt = TRANSLATION_PROMPT.format(content=content)
+
+    # Use proxy from environment or None
+    proxy = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")
+
+    with httpx.Client(timeout=120.0, proxy=proxy) as client:
+        response = client.post(
+            f"{OPENAI_API_BASE}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": OPENAI_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.3,
+                "max_tokens": 4000,
+            },
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
 
 
 def load_progress() -> dict:
@@ -110,20 +129,6 @@ def write_section(section_num: int, content: str):
     path.write_text(content, encoding="utf-8")
 
 
-def translate_section(client: OpenAI, section_num: int, content: str) -> str:
-    """Translate a section using OpenAI API."""
-    prompt = TRANSLATION_PROMPT.format(content=content)
-
-    response = client.chat.completions.create(
-        model=OPENAI_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,  # Lower temperature for more consistent output
-        max_tokens=4000,
-    )
-
-    return response.choices[0].message.content
-
-
 def show_status(progress: dict):
     """Display translation progress status."""
     total = progress["total"]
@@ -147,7 +152,52 @@ def show_status(progress: dict):
         print(f"  Currently in progress: section {progress['in_progress']}")
 
 
-def translate_all(client: OpenAI, progress: dict, start: int = 1, force: bool = False):
+def translate_single(progress: dict, section_num: int, force: bool = False):
+    """Translate a single section."""
+    if not force and section_num in progress["completed"]:
+        print(f"Section {section_num} already translated. Use --force to re-translate.")
+        return
+
+    print(f"\n{'='*60}")
+    print(f"Translating section {section_num}...")
+
+    # Read source content
+    content = read_section(section_num)
+    if content is None:
+        print(f"  ERROR: Source file not found for section {section_num}")
+        progress["failed"].append(section_num)
+        save_progress(progress)
+        return
+
+    # Update progress
+    progress["in_progress"] = section_num
+    save_progress(progress)
+
+    try:
+        # Translate
+        translated = translate_section(section_num, content)
+
+        # Save translation
+        write_section(section_num, translated)
+
+        # Update progress
+        if section_num in progress["failed"]:
+            progress["failed"].remove(section_num)
+        progress["completed"].append(section_num)
+        progress["in_progress"] = None
+        save_progress(progress)
+
+        print(f"  SUCCESS: Section {section_num} translated and saved")
+
+    except Exception as e:
+        print(f"  ERROR: {e}")
+        if section_num not in progress["failed"]:
+            progress["failed"].append(section_num)
+        progress["in_progress"] = None
+        save_progress(progress)
+
+
+def translate_all(progress: dict, start: int = 1, force: bool = False):
     """Translate all remaining sections."""
     total = progress["total"]
 
@@ -155,43 +205,7 @@ def translate_all(client: OpenAI, progress: dict, start: int = 1, force: bool = 
         if not force and section_num in progress["completed"]:
             continue
 
-        print(f"\n{'='*60}")
-        print(f"Translating section {section_num}/{total}...")
-
-        # Read source content
-        content = read_section(section_num)
-        if content is None:
-            print(f"  ERROR: Source file not found for section {section_num}")
-            progress["failed"].append(section_num)
-            save_progress(progress)
-            continue
-
-        # Update progress
-        progress["in_progress"] = section_num
-        save_progress(progress)
-
-        try:
-            # Translate
-            translated = translate_section(client, section_num, content)
-
-            # Save translation
-            write_section(section_num, translated)
-
-            # Update progress
-            if section_num in progress["failed"]:
-                progress["failed"].remove(section_num)
-            progress["completed"].append(section_num)
-            progress["in_progress"] = None
-            save_progress(progress)
-
-            print(f"  SUCCESS: Section {section_num} translated and saved")
-
-        except Exception as e:
-            print(f"  ERROR: {e}")
-            if section_num not in progress["failed"]:
-                progress["failed"].append(section_num)
-            progress["in_progress"] = None
-            save_progress(progress)
+        translate_single(progress, section_num, force)
 
 
 def main():
@@ -221,23 +235,21 @@ def main():
         show_status(progress)
         return
 
-    # Initialize OpenAI client
-    try:
-        client = get_client()
-    except ValueError as e:
-        print(f"Error: {e}")
-        print("Please create a .env file with your OpenAI API key:")
+    # Check API key
+    if not OPENAI_API_KEY:
+        print("Error: OPENAI_API_KEY not found in .env file")
+        print("Please create a .env file with your API key:")
         print("  cp .env.example .env")
         print("  # Edit .env and add your API key")
         sys.exit(1)
 
-    # Determine start point
+    # Determine what to translate
     if args.section:
         if args.section < 1 or args.section > 100:
             print(f"Error: Section must be between 1 and 100")
             sys.exit(1)
-        translate_all(client, progress, start=args.section, force=args.force)
-    elif args.resume or not args.section:
+        translate_single(progress, args.section, args.force)
+    else:
         # Resume from last completed + 1
         start = 1
         if progress["completed"]:
@@ -250,7 +262,7 @@ def main():
             show_status(progress)
             return
 
-        translate_all(client, progress, start=start, force=args.force)
+        translate_all(progress, start=start, force=args.force)
 
     # Show final status
     show_status(progress)
