@@ -207,12 +207,3 @@ pivots mark the way forward,
 truth distilled in rows.
 ```
 
-## Chapter 4. Vector spaces and subspaces 
-
-#### Opening 
-```
-Endless skies expand,
-spaces within spaces grow,
-freedom takes its shape.
-```
-

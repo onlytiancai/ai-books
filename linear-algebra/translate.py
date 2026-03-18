@@ -61,7 +61,7 @@ def translate_section(section_num: int, content: str) -> str:
     # Use proxy from environment or None
     proxy = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")
 
-    with httpx.Client(timeout=120.0, proxy=proxy) as client:
+    with httpx.Client(timeout=180.0, proxy=proxy) as client:
         response = client.post(
             f"{OPENAI_API_BASE}/chat/completions",
             headers={
