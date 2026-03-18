@@ -7,6 +7,9 @@ let showTranslation = true;
 let showNotes = true;
 let currentUtterance = null;
 let currentSpeakerBtn = null;
+let dictionaryCache = new Map(); // Cache dictionary lookups
+let activePopup = null;
+let popupTimeout = null;
 
 // DOM Elements
 const contentEl = document.getElementById('content');
@@ -166,14 +169,58 @@ function renderLines(lines) {
     });
   });
 
-  // Add click handlers for word highlights
+  // Add click handlers for word highlights (vocabulary words)
   document.querySelectorAll('.word-highlight').forEach(el => {
     el.addEventListener('click', (e) => {
       document.querySelectorAll('.word-highlight.active').forEach(active => {
         active.classList.remove('active');
       });
       el.classList.toggle('active');
+      adjustTooltipPosition(el);
+      // Load dictionary data for vocabulary word
+      loadVocabDictData(el);
     });
+
+    // Also adjust on hover and load dict data
+    el.addEventListener('mouseenter', () => {
+      adjustTooltipPosition(el);
+      loadVocabDictData(el);
+    });
+  });
+
+  // Add hover handlers for dict-words (non-vocabulary words)
+  document.querySelectorAll('.dict-word').forEach(el => {
+    el.addEventListener('mouseenter', (e) => {
+      const word = el.dataset.word;
+      if (word) {
+        showDictionaryPopup(el, word);
+      }
+    });
+
+    el.addEventListener('mouseleave', (e) => {
+      // Check if mouse moved to popup
+      if (activePopup && !activePopup.contains(e.relatedTarget)) {
+        hideDictionaryPopup();
+      }
+    });
+  });
+
+  // Keep popup visible when hovering over it
+  document.addEventListener('mouseover', (e) => {
+    if (activePopup && activePopup.contains(e.target)) {
+      if (popupTimeout) {
+        clearTimeout(popupTimeout);
+        popupTimeout = null;
+      }
+    }
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    if (activePopup && activePopup.contains(e.target)) {
+      if (!activePopup.contains(e.relatedTarget) && !e.target.closest('.dict-word')) {
+        hideDictionaryPopup();
+      }
+    }
   });
 
   // Close active highlights when clicking elsewhere
@@ -182,6 +229,14 @@ function renderLines(lines) {
       document.querySelectorAll('.word-highlight.active').forEach(el => {
         el.classList.remove('active');
       });
+    }
+
+    // Close dict popup when clicking elsewhere
+    if (!e.target.closest('.dict-word') && !e.target.closest('.dict-popup')) {
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
     }
   });
 }
@@ -218,13 +273,21 @@ function renderLine(line) {
 }
 
 function highlightVocabulary(text, vocabulary) {
-  if (!vocabulary || vocabulary.length === 0 || !text) {
-    return escapeHtml(text || '');
+  if (!text) {
+    return '';
   }
 
   // Sort by word length (longest first) to avoid partial matches
-  const sortedVocab = [...vocabulary].sort((a, b) => {
+  const sortedVocab = [...(vocabulary || [])].sort((a, b) => {
     return (b.word || '').length - (a.word || '').length;
+  });
+
+  // Create a map for quick lookup
+  const vocabMap = new Map();
+  sortedVocab.forEach(item => {
+    if (item.word) {
+      vocabMap.set(item.word.toLowerCase(), item);
+    }
   });
 
   // Find all word positions in original text
@@ -251,7 +314,8 @@ function highlightVocabulary(text, vocabulary) {
           start: match.index,
           end: match.index + match[0].length,
           word: match[0],
-          item: item
+          item: item,
+          isVocab: true
         });
       }
     }
@@ -266,37 +330,349 @@ function highlightVocabulary(text, vocabulary) {
   let lastEnd = 0;
 
   matches.forEach((match) => {
-    // Add text before this match
-    result += escapeHtml(text.slice(lastEnd, match.start));
+    // Add text before this match - wrap non-highlighted words
+    result += wrapNonHighlightWords(text.slice(lastEnd, match.start));
 
     // Add highlighted word with tooltip
-    const tooltipHtml = renderWordTooltip(match.item);
-    result += `<span class="word-highlight">${escapeHtml(match.word)}${tooltipHtml}</span>`;
+    const tooltipHtml = renderWordTooltip(match.item, match.word);
+    result += `<span class="word-highlight" data-word="${escapeAttr(match.word)}">${escapeHtml(match.word)}${tooltipHtml}</span>`;
 
     lastEnd = match.end;
   });
 
-  // Add remaining text
-  result += escapeHtml(text.slice(lastEnd));
+  // Add remaining text - wrap non-highlighted words
+  result += wrapNonHighlightWords(text.slice(lastEnd));
 
   return result;
 }
 
-function renderWordTooltip(item) {
+/**
+ * Wrap non-highlighted words in spans for dictionary lookup
+ */
+function wrapNonHighlightWords(text) {
+  if (!text) return '';
+
+  // Match words (including contractions like don't, it's)
+  const wordRegex = /\b([a-zA-Z]+(?:'[a-zA-Z]+)?)\b/g;
+  let result = '';
+  let lastIndex = 0;
+  let match;
+
+  while ((match = wordRegex.exec(text)) !== null) {
+    // Add non-word text
+    result += escapeHtml(text.slice(lastIndex, match.index));
+    // Add wrapped word
+    const word = match[1];
+    result += `<span class="dict-word" data-word="${escapeAttr(word)}">${escapeHtml(word)}</span>`;
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  result += escapeHtml(text.slice(lastIndex));
+
+  return result;
+}
+
+function renderWordTooltip(item, word) {
   // Escape all content in tooltip to prevent HTML injection
-  const word = escapeHtml(item.word || '');
+  const wordText = escapeHtml(word || item.word || '');
   const phonetic = item.phonetic ? escapeHtml(item.phonetic) : '';
   const meaning = item.meaning ? escapeHtml(item.meaning) : '';
+
+  // Audio URLs from Youdao
+  const audioUs = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(item.word)}&type=1`;
+  const audioUk = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(item.word)}&type=2`;
 
   return `
     <span class="word-tooltip" onclick="event.stopPropagation()">
       <div class="word-head">
-        <span class="word-text">${word}</span>
+        <span class="word-text">${wordText}</span>
         ${phonetic ? `<span class="phonetic">${phonetic}</span>` : ''}
       </div>
-      ${meaning ? `<div class="meaning">${meaning}</div>` : ''}
+      <div class="audio-buttons">
+        <button class="audio-btn" onclick="event.stopPropagation(); playWordAudio('${escapeAttr(audioUs)}', this)" title="US pronunciation"><span class="audio-icon">🔊</span><span class="audio-label">US</span></button>
+        <button class="audio-btn" onclick="event.stopPropagation(); playWordAudio('${escapeAttr(audioUk)}', this)" title="UK pronunciation"><span class="audio-icon">🔊</span><span class="audio-label">UK</span></button>
+      </div>
+      ${meaning ? `<div class="meaning-context"><span class="meaning-label">Context meaning:</span> ${meaning}</div>` : ''}
+      <div class="dict-extra" data-word="${escapeAttr(item.word)}"></div>
     </span>
   `;
+}
+
+/**
+ * Play word audio from Youdao
+ */
+function playWordAudio(url, btn) {
+  const audio = new Audio(url);
+  if (btn) {
+    btn.classList.add('playing');
+    audio.onended = () => btn.classList.remove('playing');
+    audio.onerror = () => btn.classList.remove('playing');
+  }
+  audio.play().catch(err => console.error('Audio play error:', err));
+}
+
+/**
+ * Lookup word in dictionary via API
+ */
+async function fetchDictionaryData(word) {
+  const lowerWord = word.toLowerCase();
+
+  // Check cache first
+  if (dictionaryCache.has(lowerWord)) {
+    return dictionaryCache.get(lowerWord);
+  }
+
+  try {
+    const response = await fetch(`/api/dictionary/lookup?word=${encodeURIComponent(word)}`);
+    if (response.ok) {
+      const data = await response.json();
+      dictionaryCache.set(lowerWord, data);
+      return data;
+    }
+    return null;
+  } catch (err) {
+    console.error('Dictionary lookup error:', err);
+    return null;
+  }
+}
+
+/**
+ * Load dictionary data into vocabulary word tooltip
+ */
+async function loadVocabDictData(wordEl) {
+  const tooltip = wordEl.querySelector('.word-tooltip');
+  if (!tooltip) return;
+
+  const dictExtra = tooltip.querySelector('.dict-extra');
+  if (!dictExtra || dictExtra.dataset.loaded) return;
+
+  const word = dictExtra.dataset.word;
+  if (!word) return;
+
+  // Mark as loading
+  dictExtra.innerHTML = '<div class="dict-loading-text">Loading dictionary...</div>';
+
+  const data = await fetchDictionaryData(word);
+  dictExtra.dataset.loaded = 'true';
+
+  if (!data) {
+    dictExtra.innerHTML = '';
+    return;
+  }
+
+  // Render dictionary definitions
+  const translation = data.translation || '';
+  const definition = data.definition || '';
+
+  const transLines = translation ? translation.split('\n').filter(t => t.trim()) : [];
+  const defLines = definition ? definition.split('\n').filter(d => d.trim()) : [];
+
+  let html = '';
+
+  if (transLines.length > 0) {
+    const transHtml = renderCollapsibleLines(transLines, 'trans-item', 'translation-inline');
+    html += transHtml;
+  }
+
+  if (defLines.length > 0) {
+    const defHtml = renderCollapsibleLines(defLines, 'def-item', 'definition-inline');
+    html += defHtml;
+  }
+
+  dictExtra.innerHTML = html;
+
+  // Re-position tooltip after content load
+  adjustTooltipPosition(wordEl);
+}
+
+/**
+ * Show dictionary popup for a word
+ */
+async function showDictionaryPopup(wordEl, word) {
+  // Clear any pending hide timeout
+  if (popupTimeout) {
+    clearTimeout(popupTimeout);
+    popupTimeout = null;
+  }
+
+  // Remove existing popup
+  if (activePopup) {
+    activePopup.remove();
+    activePopup = null;
+  }
+
+  // Create popup element
+  const popup = document.createElement('div');
+  popup.className = 'dict-popup';
+  popup.innerHTML = '<div class="dict-loading-text">Loading...</div>';
+  document.body.appendChild(popup);
+  activePopup = popup;
+
+  // Position popup
+  positionPopup(popup, wordEl);
+
+  // Fetch dictionary data
+  const data = await fetchDictionaryData(word);
+
+  if (!data) {
+    popup.innerHTML = `
+      <div class="word-head">
+        <span class="word-text">${escapeHtml(word)}</span>
+      </div>
+      <div class="dict-not-found">Word not found in dictionary</div>
+    `;
+    return;
+  }
+
+  // Render full dictionary data
+  popup.innerHTML = renderDictionaryPopup(data);
+
+  // Add event handlers for audio buttons
+  popup.querySelectorAll('.audio-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playWordAudio(btn.dataset.url, btn);
+    });
+  });
+
+  // Re-position after content load
+  positionPopup(popup, wordEl);
+}
+
+/**
+ * Render dictionary popup content
+ */
+function renderDictionaryPopup(data) {
+  const word = escapeHtml(data.word || '');
+  const phonetic = data.phonetic ? escapeHtml(data.phonetic) : '';
+  const translation = data.translation || '';
+  const definition = data.definition || '';
+  const pos = data.pos ? escapeHtml(data.pos) : '';
+  const tag = data.tag ? escapeHtml(data.tag) : '';
+  const collins = data.collins || 0;
+  const oxford = data.oxford || 0;
+
+  // Parse translation lines
+  const transLines = translation ? translation.split('\n').filter(t => t.trim()) : [];
+  const transHtml = renderCollapsibleLines(transLines, 'trans-item', 'translation');
+
+  // Parse definition lines
+  const defLines = definition ? definition.split('\n').filter(d => d.trim()) : [];
+  const defHtml = renderCollapsibleLines(defLines, 'def-item', 'definition');
+
+  // Render stars
+  const collinsStars = '★'.repeat(Math.min(collins, 5));
+  const oxfordBadge = oxford ? '<span class="oxford-badge">OXFORD</span>' : '';
+
+  return `
+    <div class="word-head">
+      <span class="word-text">${word}</span>
+      ${phonetic ? `<span class="phonetic">${phonetic}</span>` : ''}
+    </div>
+    <div class="audio-buttons">
+      <button class="audio-btn" data-url="${escapeAttr(data.audioUs)}" title="US pronunciation"><span class="audio-icon">🔊</span><span class="audio-label">US</span></button>
+      <button class="audio-btn" data-url="${escapeAttr(data.audioUk)}" title="UK pronunciation"><span class="audio-icon">🔊</span><span class="audio-label">UK</span></button>
+    </div>
+    ${pos ? `<div class="pos">${pos}</div>` : ''}
+    ${transHtml}
+    ${defHtml}
+    <div class="word-meta">
+      ${collinsStars ? `<span class="collins">${collinsStars}</span>` : ''}
+      ${oxfordBadge}
+      ${tag ? `<span class="tag">${escapeHtml(tag)}</span>` : ''}
+    </div>
+  `;
+}
+
+/**
+ * Render collapsible lines (show 2 by default, more on click)
+ */
+function renderCollapsibleLines(lines, itemClass, sectionClass) {
+  if (!lines || lines.length === 0) return '';
+
+  const maxVisible = 2;
+  const hasMore = lines.length > maxVisible;
+
+  // Escape HTML for each line
+  const escapedLines = lines.map(l => escapeHtml(l.trim()));
+
+  // Visible lines
+  const visibleHtml = escapedLines.slice(0, maxVisible).map(l =>
+    `<div class="${itemClass}">${l}</div>`
+  ).join('');
+
+  // Hidden lines
+  const hiddenHtml = hasMore ? escapedLines.slice(maxVisible).map(l =>
+    `<div class="${itemClass} hidden-line">${l}</div>`
+  ).join('') : '';
+
+  // Show more button
+  const moreBtn = hasMore ?
+    `<button class="show-more-btn" onclick="toggleShowMore(this)">Show more (${lines.length - maxVisible} more)</button>` :
+    '';
+
+  return `<div class="${sectionClass}">${visibleHtml}${hiddenHtml}${moreBtn}</div>`;
+}
+
+/**
+ * Toggle show more/less for collapsed content
+ */
+function toggleShowMore(btn) {
+  const container = btn.parentElement;
+  const hiddenLines = container.querySelectorAll('.hidden-line');
+  const isExpanded = btn.classList.contains('expanded');
+
+  if (isExpanded) {
+    hiddenLines.forEach(el => el.style.display = 'none');
+    btn.textContent = btn.dataset.originalText;
+    btn.classList.remove('expanded');
+  } else {
+    hiddenLines.forEach(el => el.style.display = 'block');
+    btn.dataset.originalText = btn.textContent;
+    btn.textContent = 'Show less';
+    btn.classList.add('expanded');
+  }
+}
+
+/**
+ * Position the popup near the word element
+ */
+function positionPopup(popup, wordEl) {
+  const rect = wordEl.getBoundingClientRect();
+  const popupRect = popup.getBoundingClientRect();
+
+  let left = rect.left;
+  let top = rect.bottom + 8;
+
+  // Adjust if overflowing right
+  if (left + popupRect.width > window.innerWidth - 10) {
+    left = window.innerWidth - popupRect.width - 10;
+  }
+
+  // Adjust if overflowing bottom
+  if (top + popupRect.height > window.innerHeight - 10) {
+    top = rect.top - popupRect.height - 8;
+  }
+
+  // Ensure minimum left
+  if (left < 10) left = 10;
+
+  popup.style.left = `${left}px`;
+  popup.style.top = `${top}px`;
+}
+
+/**
+ * Hide dictionary popup with delay
+ */
+function hideDictionaryPopup() {
+  popupTimeout = setTimeout(() => {
+    if (activePopup) {
+      activePopup.remove();
+      activePopup = null;
+    }
+    popupTimeout = null;
+  }, 300);
 }
 
 function escapeAttr(text) {
@@ -470,6 +846,50 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Adjust tooltip position to prevent overflow
+function adjustTooltipPosition(wordEl) {
+  const tooltip = wordEl.querySelector('.word-tooltip');
+  if (!tooltip) return;
+
+  // Get word position
+  const wordRect = wordEl.getBoundingClientRect();
+
+  // Temporarily show tooltip for measurement
+  tooltip.style.visibility = 'hidden';
+  tooltip.style.opacity = '1';
+  tooltip.style.pointerEvents = 'none';
+
+  // Get tooltip dimensions
+  const tooltipRect = tooltip.getBoundingClientRect();
+  const tooltipWidth = tooltipRect.width;
+  const tooltipHeight = tooltipRect.height;
+
+  // Calculate initial position (below the word)
+  let left = wordRect.left;
+  let top = wordRect.bottom + 4;
+
+  // Adjust horizontal position if overflowing right
+  if (left + tooltipWidth > window.innerWidth - 10) {
+    left = wordRect.right - tooltipWidth;
+    if (left < 10) left = 10;
+  }
+
+  // Adjust vertical position if overflowing bottom
+  if (top + tooltipHeight > window.innerHeight - 10) {
+    top = wordRect.top - tooltipHeight - 4;
+    if (top < 10) top = 10;
+  }
+
+  // Apply position
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${top}px`;
+
+  // Restore visibility
+  tooltip.style.visibility = '';
+  tooltip.style.opacity = '';
+  tooltip.style.pointerEvents = '';
 }
 
 // Handle browser back/forward

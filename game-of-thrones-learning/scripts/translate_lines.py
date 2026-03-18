@@ -71,15 +71,18 @@ def call_llm(prompt: str, max_retries: int = 5, max_tokens: int = 4096) -> str:
     for attempt in range(max_retries):
         try:
             session = requests.Session()
+            start_time = time.time()
             response = session.post(
                 f"{API_BASE_URL}/chat/completions",
                 headers=headers,
                 json=payload,
-                timeout=120
+                timeout=240
             )
             response.raise_for_status()
 
             result = response.json()
+            elapsed = time.time() - start_time
+            print(f"    LLM response time: {elapsed:.2f}s")
             return result["choices"][0]["message"]["content"]
 
         except requests.Timeout as e:
@@ -381,7 +384,10 @@ def translate_lines(start_line: int = 0, output_file: Optional[str] = None, batc
 
                 except KeyboardInterrupt:
                     print("\n\nInterrupted by user.")
-                    print(f"Progress saved: {batch_end_idx}/{total_lines} lines")
+                    # Progress is saved after each successful batch completion
+                    saved_progress = load_progress()
+                    if saved_progress:
+                        print(f"Last saved progress: {saved_progress.get('last_line', 0) + 1}/{total_lines} lines")
                     print("Run the script again to continue from where you left off.")
                     sys.exit(0)
                 except Exception as e:

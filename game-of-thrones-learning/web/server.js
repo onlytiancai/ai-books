@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { readLinesRange, getTotalLines, getLineByNumber } = require('./utils/jsonl-reader');
+const { lookupWord } = require('./utils/dictionary');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -34,6 +35,26 @@ app.get('/api/lines', async (req, res) => {
   } catch (err) {
     console.error('Error reading lines:', err);
     res.status(500).json({ error: 'Failed to read lines' });
+  }
+});
+
+// API: Dictionary lookup
+app.get('/api/dictionary/lookup', (req, res) => {
+  try {
+    const word = (req.query.word || '').trim();
+    if (!word) {
+      return res.status(400).json({ error: 'Word parameter required' });
+    }
+
+    const result = lookupWord(word);
+    if (result) {
+      res.json(result);
+    } else {
+      res.status(404).json({ error: 'Word not found in dictionary' });
+    }
+  } catch (err) {
+    console.error('Dictionary lookup error:', err);
+    res.status(500).json({ error: 'Failed to lookup word' });
   }
 });
 

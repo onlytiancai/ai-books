@@ -226,10 +226,7 @@ body {
 
 /* Inline vocabulary tooltip */
 .word-tooltip {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  margin-top: 4px;
+  position: fixed;
   background: white;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -237,18 +234,16 @@ body {
   min-width: 260px;
   max-width: 320px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  z-index: 100;
+  z-index: 9999;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-5px);
-  transition: all 0.2s;
+  transition: opacity 0.2s;
 }
 
 .word-highlight:hover .word-tooltip,
 .word-highlight.active .word-tooltip {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
 }
 
 .word-tooltip .word-head {
@@ -272,6 +267,266 @@ body {
 .word-tooltip .meaning {
   color: var(--text-color);
   margin-bottom: 8px;
+}
+
+.word-tooltip .meaning-context {
+  background: #fff8e1;
+  padding: 8px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.word-tooltip .meaning-label {
+  color: #f57c00;
+  font-weight: 500;
+  font-size: 11px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.word-tooltip .dict-extra {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.word-tooltip .dict-loading-text {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.word-tooltip .translation-inline,
+.word-tooltip .definition-inline {
+  margin-bottom: 6px;
+}
+
+.word-tooltip .translation-inline .trans-item {
+  color: #333;
+  font-size: 13px;
+  margin: 2px 0;
+}
+
+.word-tooltip .definition-inline .def-item {
+  color: #666;
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.word-tooltip .hidden-line {
+  display: none;
+}
+
+.word-tooltip .show-more-btn {
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 0;
+  margin-top: 2px;
+  text-decoration: underline;
+}
+
+.word-tooltip .show-more-btn:hover {
+  color: #2980b9;
+}
+
+.word-tooltip .dict-loading {
+  display: none;
+}
+
+/* Audio buttons in tooltip */
+.audio-buttons {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.audio-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.audio-btn:hover {
+  background: #e0e0e0;
+  transform: scale(1.02);
+}
+
+.audio-btn .audio-icon {
+  font-size: 14px;
+}
+
+.audio-btn .audio-label {
+  font-weight: 500;
+  color: #555;
+}
+
+.audio-btn.playing {
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.audio-btn.playing .audio-label {
+  color: white;
+}
+
+.audio-btn.playing .audio-icon {
+  animation: pulse 0.5s infinite;
+}
+
+/* Dictionary popup for non-vocabulary words */
+.dict-word {
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+.dict-word:hover {
+  background: rgba(52, 152, 219, 0.15);
+}
+
+.dict-popup {
+  position: fixed;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  min-width: 280px;
+  max-width: 360px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dict-popup .word-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.dict-popup .word-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.dict-popup .phonetic {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.dict-popup .pos {
+  display: inline-block;
+  background: #e8f4fc;
+  color: #2980b9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.dict-popup .translation {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.dict-popup .trans-item {
+  color: #333;
+  font-size: 14px;
+  margin: 2px 0;
+}
+
+.dict-popup .definition {
+  margin-bottom: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.dict-popup .def-item {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 4px 0;
+}
+
+.dict-popup .word-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.dict-popup .collins {
+  color: #f39c12;
+  font-size: 12px;
+}
+
+.dict-popup .oxford-badge {
+  background: #9b59b6;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.dict-popup .tag {
+  background: #ecf0f1;
+  color: #7f8c8d;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.dict-popup .hidden-line {
+  display: none;
+}
+
+.dict-popup .show-more-btn {
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 0;
+  margin-top: 4px;
+  text-decoration: underline;
+}
+
+.dict-popup .show-more-btn:hover {
+  color: #2980b9;
+}
+
+.dict-loading-text {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+.dict-not-found {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px 0;
 }
 
 .speaker-btn {
@@ -432,13 +687,17 @@ body {
   }
 
   .word-tooltip {
-    position: fixed;
-    left: 10px;
-    right: 10px;
-    top: auto;
-    margin-top: 8px;
     min-width: auto;
-    max-width: none;
+    max-width: calc(100vw - 20px);
+    left: 10px !important;
+    right: 10px;
+  }
+
+  .dict-popup {
+    min-width: auto;
+    max-width: calc(100vw - 20px);
+    left: 10px !important;
+    right: 10px;
   }
 
   .stop-speaking-btn {
