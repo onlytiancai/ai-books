@@ -181,46 +181,17 @@ function renderLines(lines) {
       loadVocabDictData(el);
     });
 
-    // Also adjust on hover and load dict data
-    el.addEventListener('mouseenter', () => {
-      adjustTooltipPosition(el);
-      loadVocabDictData(el);
-    });
   });
 
-  // Add hover handlers for dict-words (non-vocabulary words)
+  // Add click handlers for dict-words (non-vocabulary words)
   document.querySelectorAll('.dict-word').forEach(el => {
-    el.addEventListener('mouseenter', (e) => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
       const word = el.dataset.word;
       if (word) {
         showDictionaryPopup(el, word);
       }
     });
-
-    el.addEventListener('mouseleave', (e) => {
-      // Check if mouse moved to popup
-      if (activePopup && !activePopup.contains(e.relatedTarget)) {
-        hideDictionaryPopup();
-      }
-    });
-  });
-
-  // Keep popup visible when hovering over it
-  document.addEventListener('mouseover', (e) => {
-    if (activePopup && activePopup.contains(e.target)) {
-      if (popupTimeout) {
-        clearTimeout(popupTimeout);
-        popupTimeout = null;
-      }
-    }
-  });
-
-  document.addEventListener('mouseout', (e) => {
-    if (activePopup && activePopup.contains(e.target)) {
-      if (!activePopup.contains(e.relatedTarget) && !e.target.closest('.dict-word')) {
-        hideDictionaryPopup();
-      }
-    }
   });
 
   // Close active highlights when clicking elsewhere

@@ -201,10 +201,7 @@ body {
   transition: all 0.2s;
 }
 
-.original-text .word-highlight:hover {
-  background: #ffe57f;
-}
-
+.original-text .word-highlight:hover,
 .original-text .word-highlight.active {
   background: #ffe57f;
 }
@@ -240,7 +237,6 @@ body {
   transition: opacity 0.2s;
 }
 
-.word-highlight:hover .word-tooltip,
 .word-highlight.active .word-tooltip {
   opacity: 1;
   visibility: visible;
@@ -389,11 +385,6 @@ body {
 .dict-word {
   cursor: pointer;
   border-radius: 2px;
-  transition: background 0.15s;
-}
-
-.dict-word:hover {
-  background: rgba(52, 152, 219, 0.15);
 }
 
 .dict-popup {
