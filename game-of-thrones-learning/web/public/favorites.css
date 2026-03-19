@@ -1,0 +1,285 @@
+/* Favorites page styles */
+
+.favorites-content {
+  flex: 1;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.favorite-item {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.favorite-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favorite-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.favorite-word {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.remove-favorite-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remove-favorite-btn:hover {
+  background: #fee;
+  color: #e74c3c;
+}
+
+.favorite-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.favorite-chapter {
+  background: #e8f4fc;
+  color: #2980b9;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.favorite-line {
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.favorite-date {
+  font-style: italic;
+}
+
+.favorite-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.favorite-actions button {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.favorite-actions button:hover {
+  background: var(--secondary-color);
+  color: white;
+  border-color: var(--secondary-color);
+}
+
+.favorite-dict {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+.dict-result {
+  line-height: 1.6;
+}
+
+.dict-word-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.dict-word-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.dict-phonetic {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.dict-pos {
+  display: inline-block;
+  background: #e8f4fc;
+  color: #2980b9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.dict-translation {
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.dict-definition {
+  color: #666;
+  font-size: 13px;
+}
+
+.loading-text,
+.not-found,
+.error {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.not-found {
+  color: #e67e22;
+}
+
+.error {
+  color: #e74c3c;
+}
+
+.favorites-footer {
+  background: var(--primary-color);
+  color: white;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pagination-btn {
+  background: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.pagination-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.page-info {
+  min-width: 100px;
+  text-align: center;
+}
+
+.back-link {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.back-link:hover {
+  opacity: 0.8;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state h2 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.back-to-reader {
+  display: inline-block;
+  background: var(--secondary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.back-to-reader:hover {
+  background: #2980b9;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header {
+    height: auto;
+    padding: 10px;
+  }
+
+  .header-center h1 {
+    font-size: 18px;
+  }
+
+  .favorites-content {
+    padding: 10px;
+  }
+
+  .favorite-word {
+    font-size: 18px;
+  }
+
+  .pagination {
+    gap: 8px;
+  }
+
+  .page-info {
+    font-size: 12px;
+  }
+
+  .pagination-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

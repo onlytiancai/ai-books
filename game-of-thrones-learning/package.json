@@ -1,8 +1,12 @@
 {
 	"dependencies": {
-		"python-dotenv": "0.0.1-security",
-		"requests": "^0.3.0",
+		"anthropic": "^0.0.0",
 		"jinja2": "^0.0.1",
-		"anthropic": "^0.0.0"
+		"python-dotenv": "0.0.1-security",
+		"requests": "^0.3.0"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^5.2.4",
+		"vite": "^5.4.21"
 	}
 }

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Favorites - Game of Thrones Reader</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="favorites.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <a href="/" class="back-link">← Back to Reader</a>
+    </div>
+    <div class="header-center">
+      <h1>My Word Favorites</h1>
+    </div>
+    <div class="header-right">
+      <div id="user-menu" class="user-menu" style="display: none;">
+        <button id="user-menu-btn" class="user-menu-btn">
+          <span id="username-display"></span>
+          <span id="admin-badge" class="admin-badge" style="display: none;">ADMIN</span>
+          <span class="dropdown-arrow">▼</span>
+        </button>
+        <div id="user-dropdown" class="user-dropdown" style="display: none;">
+          <button id="logout-btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="favorites-content" id="favorites-content">
+    <div class="loading">Loading favorites...</div>
+  </main>
+
+  <div class="favorites-footer">
+    <div class="pagination">
+      <button id="prev-page-btn" class="pagination-btn" disabled>← Previous</button>
+      <span id="page-info" class="page-info">Page 1 of 1</span>
+      <button id="next-page-btn" class="pagination-btn" disabled>Next →</button>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="favorites.js"></script>
+</body>
+</html>

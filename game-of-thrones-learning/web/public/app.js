@@ -28,6 +28,12 @@ const bookmarkInfoEl = document.getElementById('bookmark-info');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+  // Initialize authentication first
+  if (window.auth) {
+    await window.auth.init();
+    window.auth.initAuthListeners();
+  }
+
   await loadTotalLines();
   loadFromURL();
   loadPreferences();
@@ -188,8 +194,17 @@ function renderLines(lines) {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       const word = el.dataset.word;
+      // Get line number from parent container
+      const lineContainer = el.closest('.line-container');
+      const lineNumText = lineContainer?.querySelector('.line-number')?.textContent || '';
+      const lineNumMatch = lineNumText.match(/Line (\d+)/);
+      const lineNumber = lineNumMatch ? parseInt(lineNumMatch[1], 10) : currentStartLine;
+      // Get chapter ID
+      const chapterIdMatch = lineNumText.match(/\| (.+)$/);
+      const chapterId = chapterIdMatch ? chapterIdMatch[1].trim() : null;
+
       if (word) {
-        showDictionaryPopup(el, word);
+        showDictionaryPopup(el, word, lineNumber, chapterId);
       }
     });
   });
@@ -461,7 +476,7 @@ async function loadVocabDictData(wordEl) {
 /**
  * Show dictionary popup for a word
  */
-async function showDictionaryPopup(wordEl, word) {
+async function showDictionaryPopup(wordEl, word, lineNumber, chapterId) {
   // Clear any pending hide timeout
   if (popupTimeout) {
     clearTimeout(popupTimeout);
@@ -499,7 +514,7 @@ async function showDictionaryPopup(wordEl, word) {
   }
 
   // Render full dictionary data
-  popup.innerHTML = renderDictionaryPopup(data);
+  popup.innerHTML = renderDictionaryPopup(data, word, lineNumber, chapterId);
 
   // Add event handlers for audio buttons
   popup.querySelectorAll('.audio-btn').forEach(btn => {
@@ -509,6 +524,18 @@ async function showDictionaryPopup(wordEl, word) {
     });
   });
 
+  // Add event handler for favorite button
+  const favBtn = popup.querySelector('.favorite-btn');
+  if (favBtn) {
+    favBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await toggleFavorite(favBtn, word, lineNumber, chapterId);
+    });
+  }
+
+  // Check if word is already a favorite
+  checkIfFavorite(word, lineNumber);
+
   // Re-position after content load
   positionPopup(popup, wordEl);
 }
@@ -516,8 +543,8 @@ async function showDictionaryPopup(wordEl, word) {
 /**
  * Render dictionary popup content
  */
-function renderDictionaryPopup(data) {
-  const word = escapeHtml(data.word || '');
+function renderDictionaryPopup(data, word, lineNumber, chapterId) {
+  const wordText = escapeHtml(data.word || '');
   const phonetic = data.phonetic ? escapeHtml(data.phonetic) : '';
   const translation = data.translation || '';
   const definition = data.definition || '';
@@ -538,9 +565,18 @@ function renderDictionaryPopup(data) {
   const collinsStars = '★'.repeat(Math.min(collins, 5));
   const oxfordBadge = oxford ? '<span class="oxford-badge">OXFORD</span>' : '';
 
+  // Check if user is logged in
+  const user = window.auth?.getCurrentUser?.();
+  const favoriteBtnHtml = user ? `
+    <button class="favorite-btn" data-word="${escapeAttr(word)}" data-line="${lineNumber}" title="Add to favorites">
+      <span class="favorite-icon">☆</span>
+      <span class="favorite-label">Add to favorites</span>
+    </button>
+  ` : '';
+
   return `
     <div class="word-head">
-      <span class="word-text">${word}</span>
+      <span class="word-text">${wordText}</span>
       ${phonetic ? `<span class="phonetic">${phonetic}</span>` : ''}
       <button class="close-btn" onclick="closeActivePopup()" title="Close">✕</button>
     </div>
@@ -556,6 +592,7 @@ function renderDictionaryPopup(data) {
       ${oxfordBadge}
       ${tag ? `<span class="tag">${escapeHtml(tag)}</span>` : ''}
     </div>
+    ${favoriteBtnHtml}
   `;
 }
 
@@ -878,6 +915,111 @@ function adjustTooltipPosition(wordEl) {
   tooltip.style.visibility = '';
   tooltip.style.opacity = '';
   tooltip.style.pointerEvents = '';
+}
+
+// ==================== Favorites Functions ====================
+
+/**
+ * Toggle favorite status for a word
+ */
+async function toggleFavorite(btn, word, lineNumber, chapterId) {
+  const user = window.auth?.getCurrentUser?.();
+  if (!user) {
+    window.auth?.showLoginModal?.();
+    return;
+  }
+
+  const isFav = btn.classList.contains('active');
+
+  if (isFav) {
+    await removeFavorite(btn, word, lineNumber);
+  } else {
+    await addFavorite(btn, word, lineNumber, chapterId);
+  }
+}
+
+/**
+ * Add a word to favorites
+ */
+async function addFavorite(btn, word, lineNumber, chapterId) {
+  try {
+    const response = await fetch('/api/favorites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ word, lineNumber, chapterId })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add favorite');
+    }
+
+    btn.classList.add('active');
+    btn.querySelector('.favorite-icon').textContent = '★';
+    btn.querySelector('.favorite-label').textContent = 'Remove from favorites';
+    btn.title = 'Remove from favorites';
+
+    showNotification('Added to favorites!');
+  } catch (err) {
+    console.error('Add favorite error:', err);
+    showNotification('Error: ' + err.message);
+  }
+}
+
+/**
+ * Remove a word from favorites
+ */
+async function removeFavorite(btn, word, lineNumber) {
+  // First, find the favorite ID
+  try {
+    const checkResponse = await fetch(`/api/favorites/check/${encodeURIComponent(word)}/${lineNumber}`);
+    if (checkResponse.ok) {
+      const data = await checkResponse.json();
+      if (data.favorite && data.favorite.id) {
+        const deleteResponse = await fetch(`/api/favorites/${data.favorite.id}`, {
+          method: 'DELETE'
+        });
+
+        if (deleteResponse.ok) {
+          btn.classList.remove('active');
+          btn.querySelector('.favorite-icon').textContent = '☆';
+          btn.querySelector('.favorite-label').textContent = 'Add to favorites';
+          btn.title = 'Add to favorites';
+          showNotification('Removed from favorites');
+        } else {
+          throw new Error('Failed to remove favorite');
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Remove favorite error:', err);
+    showNotification('Error: ' + err.message);
+  }
+}
+
+/**
+ * Check if word is already a favorite
+ */
+async function checkIfFavorite(word, lineNumber) {
+  const user = window.auth?.getCurrentUser?.();
+  if (!user) return;
+
+  try {
+    const response = await fetch(`/api/favorites/check/${encodeURIComponent(word)}/${lineNumber}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.isFavorite && activePopup) {
+        const btn = activePopup.querySelector('.favorite-btn');
+        if (btn) {
+          btn.classList.add('active');
+          btn.querySelector('.favorite-icon').textContent = '★';
+          btn.querySelector('.favorite-label').textContent = 'Remove from favorites';
+          btn.title = 'Remove from favorites';
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Check favorite error:', err);
+  }
 }
 
 // Handle browser back/forward
