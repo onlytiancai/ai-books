@@ -247,6 +247,25 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 6px;
+  position: relative;
+}
+
+.word-tooltip .close-btn {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-muted);
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.word-tooltip .close-btn:hover {
+  color: var(--text-color);
 }
 
 .word-tooltip .word-text {
@@ -410,6 +429,25 @@ body {
   align-items: center;
   gap: 10px;
   margin-bottom: 8px;
+  position: relative;
+}
+
+.dict-popup .close-btn {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--text-muted);
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.dict-popup .close-btn:hover {
+  color: var(--text-color);
 }
 
 .dict-popup .word-text {

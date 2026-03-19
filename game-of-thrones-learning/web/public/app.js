@@ -359,6 +359,7 @@ function renderWordTooltip(item, word) {
       <div class="word-head">
         <span class="word-text">${wordText}</span>
         ${phonetic ? `<span class="phonetic">${phonetic}</span>` : ''}
+        <button class="close-btn" onclick="closeActivePopup()" title="Close">✕</button>
       </div>
       <div class="audio-buttons">
         <button class="audio-btn" onclick="event.stopPropagation(); playWordAudio('${escapeAttr(audioUs)}', this)" title="US pronunciation"><span class="audio-icon">🔊</span><span class="audio-label">US</span></button>
@@ -490,6 +491,7 @@ async function showDictionaryPopup(wordEl, word) {
     popup.innerHTML = `
       <div class="word-head">
         <span class="word-text">${escapeHtml(word)}</span>
+        <button class="close-btn" onclick="closeActivePopup()" title="Close">✕</button>
       </div>
       <div class="dict-not-found">Word not found in dictionary</div>
     `;
@@ -540,6 +542,7 @@ function renderDictionaryPopup(data) {
     <div class="word-head">
       <span class="word-text">${word}</span>
       ${phonetic ? `<span class="phonetic">${phonetic}</span>` : ''}
+      <button class="close-btn" onclick="closeActivePopup()" title="Close">✕</button>
     </div>
     <div class="audio-buttons">
       <button class="audio-btn" data-url="${escapeAttr(data.audioUs)}" title="US pronunciation"><span class="audio-icon">🔊</span><span class="audio-label">US</span></button>
@@ -644,6 +647,20 @@ function hideDictionaryPopup() {
     }
     popupTimeout = null;
   }, 300);
+}
+
+/**
+ * Close active popup immediately
+ */
+function closeActivePopup() {
+  if (activePopup) {
+    activePopup.remove();
+    activePopup = null;
+  }
+  // Also remove active class from word highlights
+  document.querySelectorAll('.word-highlight.active').forEach(el => {
+    el.classList.remove('active');
+  });
 }
 
 function escapeAttr(text) {
