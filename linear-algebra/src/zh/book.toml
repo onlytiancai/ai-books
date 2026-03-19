@@ -1,0 +1,12 @@
+[book]
+title = "线性代数小书"
+authors = ["Duc-Tam Nguyen", "中文翻译版"]
+language = "zh"
+src = "."
+
+[preprocessor.katex]
+
+[output.html]
+default-theme = "light"
+no-section-label = true
+git-repository-url = "https://github.com/little-book-of/linear-algebra"
