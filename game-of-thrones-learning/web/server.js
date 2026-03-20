@@ -218,7 +218,7 @@ app.get('/api/favorites', requireAuth, (req, res) => {
 // Add favorite
 app.post('/api/favorites', requireAuth, (req, res) => {
   try {
-    const { word, lineNumber, chapterId } = req.body;
+    const { word, lineNumber, chapterId, sentence } = req.body;
 
     if (!word || lineNumber === undefined) {
       return res.status(400).json({ error: 'Word and line number required' });
@@ -228,7 +228,8 @@ app.post('/api/favorites', requireAuth, (req, res) => {
       req.session.userId,
       word,
       lineNumber,
-      chapterId || null
+      chapterId || null,
+      sentence || null
     );
 
     res.json({ favorite });

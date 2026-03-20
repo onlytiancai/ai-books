@@ -165,5 +165,6 @@ function closeDb() {
 module.exports = {
   lookupWord,
   findLemmas,
+  getDb,
   closeDb
 };

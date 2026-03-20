@@ -12,6 +12,8 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 const totalItems = ref(0)
 const pageSize = ref(20)
+const showTranslation = ref(false)
+const expandedWord = ref(null)
 
 async function loadFavorites(page = 1) {
   loading.value = true
@@ -40,8 +42,37 @@ function goBack() {
   router.push('/')
 }
 
-function viewContext(lineNumber) {
-  router.push({ query: { line: Math.max(0, lineNumber - 5) } })
+function toggleTranslation() {
+  showTranslation.value = !showTranslation.value
+  if (showTranslation.value) {
+    expandedWord.value = null
+  }
+}
+
+function toggleWordExpansion(word) {
+  if (expandedWord.value === word) {
+    expandedWord.value = null
+  } else {
+    expandedWord.value = word
+  }
+}
+
+async function deleteFavorite(id) {
+  if (!confirm('Are you sure you want to delete this favorite?')) {
+    return
+  }
+
+  try {
+    const res = await fetch(`/api/favorites/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      favorites.value = favorites.value.filter(f => f.id !== id)
+      totalItems.value--
+    } else {
+      console.error('Failed to delete favorite')
+    }
+  } catch (err) {
+    console.error('Delete favorite error:', err)
+  }
 }
 
 onMounted(async () => {
@@ -86,9 +117,17 @@ onMounted(async () => {
       </div>
 
       <div v-else>
-        <!-- Stats -->
-        <div class="mb-4 text-sm text-gray-600">
-          Showing {{ favorites.length }} of {{ totalItems }} favorites
+        <!-- Controls -->
+        <div class="mb-4 flex items-center justify-between">
+          <div class="text-sm text-gray-600">
+            Showing {{ favorites.length }} of {{ totalItems }} favorites
+          </div>
+          <button
+            @click="toggleTranslation"
+            class="px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+          >
+            {{ showTranslation ? 'Hide All Translations' : 'Show All Translations' }}
+          </button>
         </div>
 
         <!-- Favorites List -->
@@ -96,25 +135,53 @@ onMounted(async () => {
           <div
             v-for="fav in favorites"
             :key="fav.id"
-            class="bg-white rounded-lg shadow p-4 flex items-center justify-between"
+            class="bg-white rounded-lg shadow p-4"
           >
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-lg font-semibold text-slate-800">{{ fav.word }}</span>
-                <span v-if="fav.chapter_id" class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                  Chapter {{ fav.chapter_id }}
-                </span>
+            <!-- Word Header -->
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-lg font-semibold text-slate-800">{{ fav.word }}</span>
+              <span v-if="fav.phonetic && fav.phonetic.trim()" class="text-sm text-gray-500">/{{ fav.phonetic }}/</span>
+              <span v-if="fav.pos && fav.pos.trim()" class="text-xs text-gray-400 italic">{{ fav.pos }}</span>
+              <span v-if="fav.chapter_id" class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                Chapter {{ fav.chapter_id }}
+              </span>
+            </div>
+
+            <!-- Sentence -->
+            <div v-if="fav.sentence && fav.sentence.trim()" class="mb-2 p-3 bg-gray-50 rounded text-gray-700 text-sm">
+              {{ fav.sentence }}
+            </div>
+            <div v-else class="mb-2 p-3 bg-gray-50 rounded text-gray-400 text-sm italic">
+              No sentence context
+            </div>
+
+            <!-- Translation -->
+            <div
+              v-if="fav.translation && fav.translation.trim()"
+              class="cursor-pointer"
+              @click="toggleWordExpansion(fav.word)"
+            >
+              <div
+                v-if="showTranslation || expandedWord === fav.word"
+                class="text-sm text-gray-600 border-t pt-2 mt-2"
+              >
+                {{ fav.translation }}
               </div>
-              <div class="text-sm text-gray-500">
-                Line {{ fav.line_number }}
+              <div
+                v-else
+                class="text-sm text-gray-400 border-t pt-2 mt-2 italic"
+              >
+                Click to show translation
               </div>
             </div>
-            <div class="flex items-center gap-2">
+
+            <!-- Actions -->
+            <div class="mt-3 flex justify-end">
               <button
-                @click="viewContext(fav.line_number)"
-                class="px-3 py-1.5 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                @click="deleteFavorite(fav.id)"
+                class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
               >
-                View Context
+                Delete
               </button>
             </div>
           </div>

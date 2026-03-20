@@ -39,11 +39,21 @@ function initDb() {
         word TEXT NOT NULL,
         line_number INTEGER NOT NULL,
         chapter_id TEXT,
+        sentence TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id),
         UNIQUE(user_id, word, line_number)
       )
     `);
+
+    // Add sentence column to existing tables (if needed)
+    try {
+      db.exec(`
+        ALTER TABLE word_favorites ADD COLUMN sentence TEXT;
+      `);
+    } catch (err) {
+      // Column may already exist, ignore error
+    }
 
     // Create indexes for better query performance
     db.exec(`
@@ -220,19 +230,20 @@ function deleteUser(userId) {
  * @param {string} word - The word
  * @param {number} lineNumber - Line number where word was found
  * @param {string} [chapterId] - Chapter ID
+ * @param {string} [sentence] - The sentence where the word was found
  * @returns {object} - Created favorite
  */
-function addFavorite(userId, word, lineNumber, chapterId = null) {
+function addFavorite(userId, word, lineNumber, chapterId = null, sentence = null) {
   const database = getDb();
 
   try {
     const stmt = database.prepare(`
-      INSERT INTO word_favorites (user_id, word, line_number, chapter_id)
-      VALUES (?, ?, ?, ?)
-      ON CONFLICT(user_id, word, line_number) DO NOTHING
+      INSERT INTO word_favorites (user_id, word, line_number, chapter_id, sentence)
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(user_id, word, line_number) DO UPDATE SET sentence = excluded.sentence
     `);
 
-    const result = stmt.run(userId, word.toLowerCase(), lineNumber, chapterId);
+    const result = stmt.run(userId, word.toLowerCase(), lineNumber, chapterId, sentence);
 
     if (result.changes === 0) {
       // Favorite already exists
@@ -250,6 +261,7 @@ function addFavorite(userId, word, lineNumber, chapterId = null) {
       word: word.toLowerCase(),
       line_number: lineNumber,
       chapter_id: chapterId,
+      sentence: sentence,
       created_at: new Date().toISOString()
     };
   } catch (err) {
@@ -264,12 +276,7 @@ function addFavorite(userId, word, lineNumber, chapterId = null) {
   }
 }
 
-/**
- * Remove a favorite by ID
- * @param {number} favoriteId - Favorite ID
- * @param {number} userId - User ID (for ownership verification)
- * @returns {boolean} - Success status
- */
+// Remove favorite by ID
 function removeFavorite(favoriteId, userId) {
   const database = getDb();
 
@@ -291,6 +298,7 @@ function removeFavorite(favoriteId, userId) {
  */
 function getFavorites(userId, page = 1, pageSize = 20) {
   const database = getDb();
+  const dictionaryDb = require('./dictionary').getDb();
 
   const offset = (page - 1) * pageSize;
 
@@ -302,7 +310,7 @@ function getFavorites(userId, page = 1, pageSize = 20) {
 
   // Get favorites with pagination
   const favoritesStmt = database.prepare(`
-    SELECT id, word, line_number, chapter_id, created_at
+    SELECT id, word, line_number, chapter_id, sentence, created_at
     FROM word_favorites
     WHERE user_id = ?
     ORDER BY created_at DESC
@@ -311,8 +319,29 @@ function getFavorites(userId, page = 1, pageSize = 20) {
 
   const favorites = favoritesStmt.all(userId, pageSize, offset);
 
+  // Enrich with dictionary data
+  const enrichedFavorites = favorites.map(fav => {
+    let dictData = null;
+    if (dictionaryDb) {
+      try {
+        const dictStmt = dictionaryDb.prepare('SELECT * FROM Dictionary WHERE word = ? COLLATE NOCASE');
+        dictData = dictStmt.get(fav.word);
+      } catch (err) {
+        console.error('Dictionary query error for word', fav.word, ':', err.message);
+      }
+    }
+
+    const result = {
+      ...fav,
+      phonetic: dictData?.phonetic || '',
+      translation: dictData?.translation ? dictData.translation.replace(/\\n/g, '\n') : '',
+      pos: dictData?.pos || ''
+    };
+    return result;
+  });
+
   return {
-    favorites,
+    favorites: enrichedFavorites,
     total,
     page,
     pageSize,

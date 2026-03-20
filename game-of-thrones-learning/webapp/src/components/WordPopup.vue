@@ -8,6 +8,7 @@ const props = defineProps({
   chapterId: { type: String, default: null },
   isVocab: { type: Boolean, default: false },
   vocabData: { type: Object, default: null },
+  sentence: { type: String, default: null },
   position: { type: Object, default: () => ({ top: 0, left: 0 }) },
   currentUser: { type: Object, default: null }
 })
@@ -81,7 +82,8 @@ async function toggleFavorite() {
         body: JSON.stringify({
           word: props.word,
           lineNumber: props.lineNumber,
-          chapterId: props.chapterId
+          chapterId: props.chapterId,
+          sentence: props.sentence
         })
       })
       if (res.ok) {

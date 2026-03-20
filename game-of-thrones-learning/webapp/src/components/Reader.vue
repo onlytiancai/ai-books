@@ -85,11 +85,28 @@ function handleWordClick(e) {
   const lineNum = lineContainer?.dataset.line || currentStartLine.value
   const chapterId = lineContainer?.dataset.chapter || null
 
+  // Get the sentence (original text) from the line data
+  const lineData = currentData.value.find(l => l.line_number === parseInt(lineNum, 10))
+  let sentence = null
+  if (lineData?.original) {
+    // Extract the sentence containing the word
+    // Split by sentence delimiters (. ! ?) but keep the delimiter
+    const sentences = lineData.original.match(/[^.!?]+[.!?]+/g) || [lineData.original]
+    // Find the sentence containing the word
+    for (const s of sentences) {
+      if (s.toLowerCase().includes(word.toLowerCase())) {
+        sentence = s.trim()
+        break
+      }
+    }
+  }
+
   activeWord.value = {
     word,
     lineNumber: parseInt(lineNum, 10),
     chapterId,
-    isVocab
+    isVocab,
+    sentence
   }
 
   const rect = e.target.getBoundingClientRect()
@@ -385,6 +402,7 @@ onMounted(async () => {
       :line-number="activeWord.lineNumber"
       :chapter-id="activeWord.chapterId"
       :is-vocab="activeWord.isVocab"
+      :sentence="activeWord.sentence"
       :position="popupPosition"
       :current-user="props.currentUser"
       @close="closePopup"

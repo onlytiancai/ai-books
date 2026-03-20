@@ -15,8 +15,9 @@ A bilingual (English-Chinese) reading application for Game of Thrones with vocab
 - **Dictionary Lookup**: Click any word to see definition, pronunciation, and usage
 - **Text-to-Speech**: Audio pronunciation for words (US/UK English)
 - **User Authentication**: Registration, login, session management
-- **Admin Panel**: First registered user becomes admin
-- **Word Favorites**: Save words to your favorites with pagination
+- **Admin Panel**: First registered user becomes admin, can manage other users
+- **Word Favorites**: Save words to your favorites with phonetic, translation, and sentence context
+- **Translation Toggle**: Show/hide all translations in favorites, or click individual words to reveal
 - **Responsive Design**: Mobile-friendly layout
 - **Notes**: Additional context and grammar notes
 
@@ -29,7 +30,9 @@ webapp/
 │   │   ├── Reader.vue       # Main reading component
 │   │   ├── WordPopup.vue    # Word dictionary popup
 │   │   ├── AuthModal.vue    # Login/Register modal
-│   │   └── Favorites.vue    # User's favorite words
+│   │   ├── Favorites.vue    # User's favorite words
+│   │   └── admin/
+│   │       └── Users.vue    # Admin user management
 │   ├── composables/
 │   │   └── auth.js          # Authentication logic
 │   ├── router/
@@ -99,6 +102,7 @@ db.close();
 
 - `/` - Main reader (default)
 - `/favorites` - User's favorite words (requires authentication)
+- `/admin/users` - User management (admin only)
 
 ## API Proxy
 
