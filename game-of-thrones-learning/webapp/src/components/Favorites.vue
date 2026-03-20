@@ -2,9 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Auth from '../composables/auth'
+import { useSpeech } from '../composables/speech'
 
 const router = useRouter()
 const auth = new Auth()
+const { speakText, stopSpeaking, isSpeaking } = useSpeech()
 
 const favorites = ref([])
 const loading = ref(true)
@@ -39,7 +41,13 @@ function goToPage(page) {
 }
 
 function goBack() {
-  router.push('/')
+  // Preserve reading position - get current line from localStorage if available
+  const savedLine = localStorage.getItem('got-reader-current-line')
+  if (savedLine) {
+    router.push({ path: '/', query: { line: savedLine } })
+  } else {
+    router.push('/')
+  }
 }
 
 function toggleTranslation() {
@@ -55,6 +63,17 @@ function toggleWordExpansion(word) {
   } else {
     expandedWord.value = word
   }
+}
+
+function playAudio(word, type = 'us') {
+  // Use Youdao audio for word pronunciation (more accurate for single words)
+  const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${type === 'us' ? 1 : 2}`)
+  audio.play().catch(err => console.error('Audio play error:', err))
+}
+
+function playSentenceAudio(sentence) {
+  // Use speech synthesis for sentence pronunciation
+  speakText(sentence, null)
 }
 
 async function deleteFavorite(id) {
@@ -94,6 +113,14 @@ onMounted(async () => {
           ← Back to Reader
         </button>
         <h1 class="text-xl font-semibold">My Favorites</h1>
+        <button
+          v-if="isSpeaking"
+          @click="stopSpeaking"
+          class="flex items-center gap-1 px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors animate-pulse"
+        >
+          <span>🔇</span>
+          <span>Stop</span>
+        </button>
       </div>
       <div v-if="auth.currentUser" class="flex items-center gap-2">
         <span class="text-sm">{{ auth.currentUser.username }}</span>
@@ -146,10 +173,24 @@ onMounted(async () => {
                 Chapter {{ fav.chapter_id }}
               </span>
             </div>
+            <!-- Audio Buttons -->
+            <div class="flex gap-2 mb-2">
+              <button @click="playAudio(fav.word, 'us')" class="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-sm">
+                <span>🔊</span>
+                <span>US</span>
+              </button>
+              <button @click="playAudio(fav.word, 'uk')" class="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-sm">
+                <span>🔊</span>
+                <span>UK</span>
+              </button>
+            </div>
 
             <!-- Sentence -->
-            <div v-if="fav.sentence && fav.sentence.trim()" class="mb-2 p-3 bg-gray-50 rounded text-gray-700 text-sm">
-              {{ fav.sentence }}
+            <div v-if="fav.sentence && fav.sentence.trim()" class="mb-2 p-3 bg-gray-50 rounded text-gray-700 text-sm flex items-start justify-between gap-2">
+              <span class="flex-1">{{ fav.sentence }}</span>
+              <button @click="playSentenceAudio(fav.sentence)" class="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600" title="Read sentence aloud">
+                <span>🔊</span>
+              </button>
             </div>
             <div v-else class="mb-2 p-3 bg-gray-50 rounded text-gray-400 text-sm italic">
               No sentence context

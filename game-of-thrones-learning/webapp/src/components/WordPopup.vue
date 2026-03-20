@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import Auth from '../composables/auth'
 
 const props = defineProps({
@@ -17,14 +17,68 @@ const emit = defineEmits(['close', 'openLogin'])
 
 const auth = new Auth()
 const dictData = ref(null)
+const vocabContextData = ref(null)
 const loading = ref(true)
 const isFavorite = ref(false)
 const favoriteId = ref(null)
+const showAllTranslations = ref(false)
+const showAllDefinitions = ref(false)
+
+// Dragging state
+const isDragging = ref(false)
+const dragOffset = ref({ x: 0, y: 0 })
+const popupPosition = ref({ top: 0, left: 0 })
+const hasUserMoved = ref(false) // Track if user has manually moved the popup
+
+// Reset data when word changes
+watch(() => props.word, () => {
+  dictData.value = null
+  vocabContextData.value = null
+  showAllTranslations.value = false
+  showAllDefinitions.value = false
+  hasUserMoved.value = false // Reset drag position when word changes
+  loadDictionary()
+  loadVocabularyContext()
+  checkFavorite()
+})
 
 const popupStyle = computed(() => ({
-  top: `${props.position.top}px`,
-  left: `${props.position.left}px`
+  top: hasUserMoved.value ? `${popupPosition.value.top}px` : `${props.position.top}px`,
+  left: hasUserMoved.value ? `${popupPosition.value.left}px` : `${props.position.left}px`,
+  cursor: isDragging.value ? 'grabbing' : 'default'
 }))
+
+function handleMouseDown(e) {
+  // Only allow dragging from header area
+  if (!e.target.closest('.drag-handle')) return
+
+  isDragging.value = true
+  hasUserMoved.value = true
+  const rect = e.currentTarget.getBoundingClientRect()
+  dragOffset.value = {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  }
+
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
+  e.preventDefault()
+}
+
+function handleMouseMove(e) {
+  if (!isDragging.value) return
+
+  popupPosition.value = {
+    top: e.clientY - dragOffset.value.y,
+    left: e.clientX - dragOffset.value.x
+  }
+}
+
+function handleMouseUp() {
+  isDragging.value = false
+  document.removeEventListener('mousemove', handleMouseMove)
+  document.removeEventListener('mouseup', handleMouseUp)
+}
 
 async function loadDictionary() {
   loading.value = true
@@ -37,6 +91,31 @@ async function loadDictionary() {
     console.error('Dictionary lookup error:', err)
   }
   loading.value = false
+}
+
+async function loadVocabularyContext() {
+  // Reset first
+  vocabContextData.value = null
+
+  // Use vocabData from props if available (passed from Reader.vue)
+  if (props.vocabData) {
+    vocabContextData.value = props.vocabData
+    return
+  }
+
+  // Fallback: fetch from API if vocabData not provided
+  if (!props.isVocab) {
+    return
+  }
+
+  try {
+    const res = await fetch(`/api/vocabulary/context?word=${encodeURIComponent(props.word)}&line=${props.lineNumber}`)
+    if (res.ok) {
+      vocabContextData.value = await res.json()
+    }
+  } catch (err) {
+    console.error('Vocabulary context error:', err)
+  }
 }
 
 async function checkFavorite() {
@@ -87,9 +166,17 @@ async function toggleFavorite() {
         })
       })
       if (res.ok) {
-        isFavorite.value = true
         const data = await res.json()
-        favoriteId.value = data.favorite?.id
+        if (data.already_exists) {
+          // Word already exists in favorites
+          console.log('Word already in favorites:', data.message)
+          // Still update the UI to show as favorite
+          isFavorite.value = true
+          favoriteId.value = data.favorite?.id
+        } else {
+          isFavorite.value = true
+          favoriteId.value = data.favorite?.id
+        }
       }
     } catch (err) {
       console.error('Add favorite error:', err)
@@ -102,8 +189,20 @@ function playAudio(type) {
   audio.play().catch(err => console.error('Audio play error:', err))
 }
 
+function toggleTranslations() {
+  showAllTranslations.value = !showAllTranslations.value
+}
+
+function toggleDefinitions() {
+  showAllDefinitions.value = !showAllDefinitions.value
+}
+
 onMounted(async () => {
   await loadDictionary()
+  // vocabContext is loaded from props (vocabData)
+  if (props.vocabData) {
+    vocabContextData.value = props.vocabData
+  }
   await checkFavorite()
 })
 </script>
@@ -111,12 +210,12 @@ onMounted(async () => {
 <template>
   <Teleport to="body">
     <div
-      class="fixed z-50 bg-white rounded-lg shadow-xl border min-w-[280px] max-w-[360px] p-4 animate-fade-in"
+      class="fixed z-50 bg-white rounded-lg shadow-xl border min-w-[280px] max-w-[360px] p-4 animate-fade-in select-none"
       :style="popupStyle"
       @click.stop
     >
-      <!-- Header -->
-      <div class="flex items-center gap-2 mb-2 relative">
+      <!-- Header (Drag Handle) -->
+      <div class="drag-handle flex items-center gap-2 mb-2 relative cursor-grab active:cursor-grabbing" @mousedown="handleMouseDown">
         <span class="text-lg font-semibold text-slate-800">{{ word }}</span>
         <span v-if="dictData?.phonetic" class="text-sm text-gray-500">{{ dictData.phonetic }}</span>
         <button @click="$emit('close')" class="absolute right-0 text-gray-400 hover:text-gray-600 text-xl">×</button>
@@ -139,18 +238,50 @@ onMounted(async () => {
         {{ dictData.pos }}
       </div>
 
+      <!-- Context-based Vocabulary Meaning (from JSONL) -->
+      <div v-if="vocabContextData" class="mb-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+        <div class="text-xs font-medium text-yellow-800 mb-1">Context meaning:</div>
+        <div class="text-sm text-gray-700">
+          <span>{{ vocabContextData.meaning }}</span>
+        </div>
+      </div>
+
       <!-- Translations -->
       <div v-if="dictData?.translation" class="mb-2">
-        <div v-for="(line, i) in dictData.translation.split('\n').filter(l => l.trim())" :key="i" class="text-sm text-gray-700">
+        <div
+          v-for="(line, i) in dictData.translation.split('\n').filter(l => l.trim())"
+          :key="i"
+          class="text-sm text-gray-700"
+          :class="!showAllTranslations && i >= 3 ? 'hidden' : ''"
+        >
           {{ line }}
         </div>
+        <button
+          v-if="dictData.translation.split('\n').filter(l => l.trim()).length > 3"
+          @click="toggleTranslations"
+          class="text-xs text-blue-500 hover:text-blue-700 mt-1"
+        >
+          {{ showAllTranslations ? 'Show less' : 'Show more...' }}
+        </button>
       </div>
 
       <!-- Definitions -->
       <div v-if="dictData?.definition" class="mb-2 pt-2 border-t">
-        <div v-for="(line, i) in dictData.definition.split('\n').filter(l => l.trim())" :key="i" class="text-xs text-gray-500">
+        <div
+          v-for="(line, i) in dictData.definition.split('\n').filter(l => l.trim())"
+          :key="i"
+          class="text-xs text-gray-500"
+          :class="!showAllDefinitions && i >= 1 ? 'hidden' : ''"
+        >
           {{ line }}
         </div>
+        <button
+          v-if="dictData.definition.split('\n').filter(l => l.trim()).length > 1"
+          @click="toggleDefinitions"
+          class="text-xs text-blue-500 hover:text-blue-700 mt-1"
+        >
+          {{ showAllDefinitions ? 'Show less' : 'Show more...' }}
+        </button>
       </div>
 
       <!-- Word Meta -->
@@ -198,5 +329,14 @@ onMounted(async () => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.drag-handle {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 </style>

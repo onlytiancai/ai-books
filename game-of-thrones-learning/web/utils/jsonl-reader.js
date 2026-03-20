@@ -98,8 +98,70 @@ async function getLineByNumber(lineNum) {
   return results[0] || null;
 }
 
+/**
+ * Get a line by its line_number field (from JSONL data)
+ * @param {number} lineNumber - The line_number field value from JSONL data
+ * @returns {Promise<Object|null>} - Parsed JSON object or null
+ */
+async function getLineByLineNumber(lineNumber) {
+  // We need to search through the file to find the matching line_number
+  // This is less efficient but necessary since line_number != array index
+  return new Promise((resolve, reject) => {
+    const fileStream = fs.createReadStream(DATA_FILE);
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+
+    let found = null;
+
+    rl.on('line', (line) => {
+      if (found) return;
+      try {
+        const data = JSON.parse(line);
+        if (data.line_number === lineNumber) {
+          found = data;
+          rl.close();
+          fileStream.destroy();
+        }
+      } catch (e) {
+        // Skip parsing errors
+      }
+    });
+
+    rl.on('close', () => {
+      resolve(found);
+    });
+
+    rl.on('error', (err) => {
+      reject(err);
+    });
+
+    fileStream.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+/**
+ * Get vocabulary data for a specific word at a line number
+ * @param {number} lineNumber - The line_number field value from JSONL data
+ * @param {string} word - The word to find in vocabulary
+ * @returns {Promise<Object|null>} - Vocabulary entry or null
+ */
+async function getVocabularyForWord(lineNumber, word) {
+  const line = await getLineByLineNumber(lineNumber);
+  if (!line || !line.vocabulary) return null;
+
+  const vocabEntry = line.vocabulary.find(
+    v => v.word.toLowerCase() === word.toLowerCase()
+  );
+  return vocabEntry || null;
+}
+
 module.exports = {
   readLinesRange,
   getTotalLines,
-  getLineByNumber
+  getLineByNumber,
+  getVocabularyForWord
 };

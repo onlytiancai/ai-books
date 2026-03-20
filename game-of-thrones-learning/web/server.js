@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const { readLinesRange, getTotalLines, getLineByNumber } = require('./utils/jsonl-reader');
+const { readLinesRange, getTotalLines, getLineByNumber, getVocabularyForWord } = require('./utils/jsonl-reader');
 const { lookupWord } = require('./utils/dictionary');
 const db = require('./utils/db');
 
@@ -232,6 +232,14 @@ app.post('/api/favorites', requireAuth, (req, res) => {
       sentence || null
     );
 
+    if (favorite.already_exists) {
+      return res.json({
+        favorite: null,
+        already_exists: true,
+        message: favorite.message || 'Word already in favorites'
+      });
+    }
+
     res.json({ favorite });
   } catch (err) {
     console.error('Add favorite error:', err.message);
@@ -342,6 +350,28 @@ app.get('/api/line/:num', async (req, res) => {
   } catch (err) {
     console.error('Error getting line:', err);
     res.status(500).json({ error: 'Failed to get line' });
+  }
+});
+
+// API: Get vocabulary context for a word at specific line
+app.get('/api/vocabulary/context', async (req, res) => {
+  try {
+    const { word, line } = req.query;
+    if (!word || line === undefined) {
+      return res.status(400).json({ error: 'Word and line parameters required' });
+    }
+
+    const lineNum = parseInt(line, 10);
+    const vocabData = await getVocabularyForWord(lineNum, word);
+
+    if (vocabData) {
+      res.json(vocabData);
+    } else {
+      res.status(404).json({ error: 'Vocabulary entry not found' });
+    }
+  } catch (err) {
+    console.error('Error getting vocabulary context:', err);
+    res.status(500).json({ error: 'Failed to get vocabulary context' });
   }
 });
 

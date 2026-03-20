@@ -2,8 +2,10 @@
 import { ref, onMounted, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import WordPopup from './WordPopup.vue'
+import { useSpeech } from '../composables/speech'
 
 const router = useRouter()
+const { speakText, stopSpeaking, isSpeaking } = useSpeech()
 
 const props = defineProps({
   currentUser: { type: Object, default: null }
@@ -88,7 +90,9 @@ function handleWordClick(e) {
   // Get the sentence (original text) from the line data
   const lineData = currentData.value.find(l => l.line_number === parseInt(lineNum, 10))
   let sentence = null
-  if (lineData?.original) {
+  let vocabContext = null
+
+  if (lineData) {
     // Extract the sentence containing the word
     // Split by sentence delimiters (. ! ?) but keep the delimiter
     const sentences = lineData.original.match(/[^.!?]+[.!?]+/g) || [lineData.original]
@@ -96,8 +100,15 @@ function handleWordClick(e) {
     for (const s of sentences) {
       if (s.toLowerCase().includes(word.toLowerCase())) {
         sentence = s.trim()
-        break
+        break;
       }
+    }
+
+    // Get vocabulary context data for this word from the line's vocabulary array
+    if (lineData.vocabulary && isVocab) {
+      vocabContext = lineData.vocabulary.find(
+        v => v.word.toLowerCase() === word.toLowerCase()
+      )
     }
   }
 
@@ -106,7 +117,8 @@ function handleWordClick(e) {
     lineNumber: parseInt(lineNum, 10),
     chapterId,
     isVocab,
-    sentence
+    sentence,
+    vocabContext
   }
 
   const rect = e.target.getBoundingClientRect()
@@ -146,6 +158,8 @@ function updateURL() {
   const url = new URL(window.location)
   url.searchParams.set('line', currentStartLine.value)
   window.history.pushState({}, '', url)
+  // Also save to localStorage for navigation from other pages
+  localStorage.setItem('got-reader-current-line', currentStartLine.value)
 }
 
 function loadFromURL() {
@@ -162,6 +176,10 @@ function loadFromURL() {
 
 function closePopup() {
   activeWord.value = null
+}
+
+function handleSpeakText(text, btn) {
+  speakText(text, btn)
 }
 
 function toggleTranslation() {
@@ -210,9 +228,17 @@ onMounted(async () => {
   <div class="min-h-screen bg-gray-100 flex flex-col">
     <!-- Header -->
     <header class="bg-slate-800 text-white px-3 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md">
-      <!-- Left: Chapter info -->
+      <!-- Left: Chapter info + Stop button -->
       <div class="flex items-center gap-2 md:gap-4">
         <span class="text-xs md:text-sm font-medium truncate max-w-[120px] md:max-w-none">Chapter: {{ currentChapter }}</span>
+        <button
+          v-if="isSpeaking"
+          @click="stopSpeaking"
+          class="flex items-center gap-1 px-3 py-1 bg-red-500 text-white text-xs md:text-sm rounded hover:bg-red-600 transition-colors animate-pulse"
+        >
+          <span>🔇</span>
+          <span class="hidden sm:inline">Stop</span>
+        </button>
       </div>
 
       <!-- Center: Navigation (hidden on mobile) -->
@@ -353,7 +379,13 @@ onMounted(async () => {
               >{{ segment.text }}</span>
               <span v-else>{{ segment.text }}</span>
             </template>
-            <button class="ml-2 text-gray-400 hover:text-gray-600" title="Read aloud">🔊</button>
+            <button
+              @click.stop="handleSpeakText(line.original, $event.target)"
+              class="ml-2 text-gray-400 hover:text-gray-600"
+              title="Read aloud"
+            >
+              🔊
+            </button>
           </div>
         </div>
 
@@ -402,6 +434,7 @@ onMounted(async () => {
       :line-number="activeWord.lineNumber"
       :chapter-id="activeWord.chapterId"
       :is-vocab="activeWord.isVocab"
+      :vocab-data="activeWord.vocabContext"
       :sentence="activeWord.sentence"
       :position="popupPosition"
       :current-user="props.currentUser"

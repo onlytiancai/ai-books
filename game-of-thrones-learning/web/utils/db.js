@@ -225,35 +225,51 @@ function deleteUser(userId) {
 // ==================== Word Favorites Functions ====================
 
 /**
+ * Check if a word is already in user's favorites (regardless of line number)
+ * @param {number} userId - User ID
+ * @param {string} word - The word
+ * @returns {object|null} - Favorite object or null
+ */
+function isWordFavorite(userId, word) {
+  const database = getDb();
+
+  const stmt = database.prepare(`
+    SELECT * FROM word_favorites
+    WHERE user_id = ? AND word = ?
+  `);
+
+  return stmt.get(userId, word.toLowerCase());
+}
+
+/**
  * Add a word to favorites
  * @param {number} userId - User ID
  * @param {string} word - The word
  * @param {number} lineNumber - Line number where word was found
  * @param {string} [chapterId] - Chapter ID
  * @param {string} [sentence] - The sentence where the word was found
- * @returns {object} - Created favorite
+ * @returns {object} - Created favorite or existing favorite info
  */
 function addFavorite(userId, word, lineNumber, chapterId = null, sentence = null) {
   const database = getDb();
+
+  // Check if word already exists in favorites (deduplication by word)
+  const existingWordFavorite = isWordFavorite(userId, word);
+  if (existingWordFavorite) {
+    return {
+      ...existingWordFavorite,
+      already_exists: true,
+      message: 'Word already in favorites'
+    };
+  }
 
   try {
     const stmt = database.prepare(`
       INSERT INTO word_favorites (user_id, word, line_number, chapter_id, sentence)
       VALUES (?, ?, ?, ?, ?)
-      ON CONFLICT(user_id, word, line_number) DO UPDATE SET sentence = excluded.sentence
     `);
 
     const result = stmt.run(userId, word.toLowerCase(), lineNumber, chapterId, sentence);
-
-    if (result.changes === 0) {
-      // Favorite already exists
-      const existing = database.prepare(`
-        SELECT * FROM word_favorites
-        WHERE user_id = ? AND word = ? AND line_number = ?
-      `).get(userId, word.toLowerCase(), lineNumber);
-
-      return { ...existing, already_exists: true };
-    }
 
     return {
       id: result.lastInsertRowid,
@@ -265,13 +281,7 @@ function addFavorite(userId, word, lineNumber, chapterId = null, sentence = null
       created_at: new Date().toISOString()
     };
   } catch (err) {
-    if (err.message.includes('UNIQUE constraint failed')) {
-      const existing = database.prepare(`
-        SELECT * FROM word_favorites
-        WHERE user_id = ? AND word = ? AND line_number = ?
-      `).get(userId, word.toLowerCase(), lineNumber);
-      return { ...existing, already_exists: true };
-    }
+    console.error('Add favorite error:', err.message);
     throw err;
   }
 }
@@ -414,5 +424,6 @@ module.exports = {
   removeFavorite,
   getFavorites,
   isFavorite,
+  isWordFavorite,
   getFavoriteById
 };
